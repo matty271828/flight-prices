@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
+	"runtime"
 
 	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/controller"
@@ -11,14 +13,24 @@ import (
 )
 
 func main() {
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+
 	amadeusClient, err := amadeus.NewAmadeusClient()
 	if err != nil {
-		fmt.Printf("Error fetching getting amadeus client: %s\n", err)
+		fmt.Printf("Error getting amadeus client: %s\n", err)
 		return
 	}
 
-	controller := controller.NewController(amadeusClient)
-	server := server.NewServer(controller)
+	c := controller.NewController(amadeusClient)
+	s := server.NewServer(c)
 
-	log.Fatal(http.ListenAndServe(":8080", server))
+	mux := http.NewServeMux()
+	mux.Handle("/api/", http.StripPrefix("/api", s))
+
+	fs := http.FileServer(http.Dir(filepath.Join(basepath, "ui")))
+	mux.Handle("/", fs)
+
+	// Start the server
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
