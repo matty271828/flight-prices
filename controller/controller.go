@@ -12,6 +12,6 @@ func NewController(a *amadeus.AmadeusClient) *Controller {
 	return &Controller{AmadeusClient: a}
 }
 
-func (c *Controller) GetDestinations(origin string) (*amadeus.ApiResponse, error) {
+func (c *Controller) GetFlightInfo(origin string) (*amadeus.ApiResponse, error) {
 	return c.AmadeusClient.GetFlightInfo(origin)
 }

@@ -33,11 +33,19 @@ func (s *Server) handleGetDestinations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	destinations, err := s.Controller.GetDestinations(origin)
+	data, err := s.Controller.GetFlightInfo(origin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(destinations)
+	// Marshalling data with indentation
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
 }
