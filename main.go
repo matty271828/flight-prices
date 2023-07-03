@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/matty271828/flight-prices/amadeus"
@@ -10,22 +11,14 @@ import (
 )
 
 func main() {
-	token, err := amadeus.GetAuthToken("UAGXkYYCKiVnZfUR0wflNqz9IK3upUea", "UV2vj7DHz3wJyhUG")
+	amadeusClient, err := amadeus.NewAmadeusClient()
 	if err != nil {
-		fmt.Printf("Error fetching fetching amadeus token: %s\n", err)
+		fmt.Printf("Error fetching getting amadeus client: %s\n", err)
 		return
 	}
 
-	amadeusClient := amadeus.NewAmadeusClient(token)
-
-	// Create a new controller with the Amadeus client
 	controller := controller.NewController(amadeusClient)
+	server := server.NewServer(controller)
 
-	// Create a new server with the controller
-	httpServer := server.NewServer(controller)
-
-	err = http.ListenAndServe(":8080", httpServer)
-	if err != nil {
-		fmt.Println("failed to start server: %w", err)
-	}
+	log.Fatal(http.ListenAndServe(":8080", server))
 }

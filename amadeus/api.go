@@ -11,8 +11,14 @@ type AmadeusClient struct {
 	Token string
 }
 
-func NewAmadeusClient(token string) *AmadeusClient {
-	return &AmadeusClient{Token: token}
+func NewAmadeusClient() (*AmadeusClient, error) {
+	token, err := GetAuthToken("UAGXkYYCKiVnZfUR0wflNqz9IK3upUea", "UV2vj7DHz3wJyhUG")
+	if err != nil {
+		fmt.Printf("Error fetching fetching amadeus token: %s\n", err)
+		return nil, err
+	}
+
+	return &AmadeusClient{Token: token}, nil
 }
 
 type ApiResponse struct {
@@ -37,7 +43,7 @@ type Links struct {
 	FlightOffers string `json:"flightOffers"`
 }
 
-func (c *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
+func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", origin)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
@@ -45,7 +51,7 @@ func (c *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+c.Token)
+	req.Header.Set("Authorization", "Bearer "+a.Token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
