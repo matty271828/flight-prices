@@ -7,6 +7,14 @@ import (
 	"net/http"
 )
 
+type AmadeusClient struct {
+	Token string
+}
+
+func NewAmadeusClient(token string) *AmadeusClient {
+	return &AmadeusClient{Token: token}
+}
+
 type ApiResponse struct {
 	Data []FlightDestination `json:"data"`
 }
@@ -29,15 +37,15 @@ type Links struct {
 	FlightOffers string `json:"flightOffers"`
 }
 
-func GetFlightInfo(departure, token string) (*ApiResponse, error) {
-	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=LON&oneWay=true&nonStop=true")
+func (c *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
+	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", origin)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+c.Token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

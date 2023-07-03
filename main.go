@@ -2,34 +2,30 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 
-	amadeus "github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/controller"
+	"github.com/matty271828/flight-prices/server"
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Println("Please provide a destination.")
-		return
-	}
-	destination := os.Args[1]
-
 	token, err := amadeus.GetAuthToken("UAGXkYYCKiVnZfUR0wflNqz9IK3upUea", "UV2vj7DHz3wJyhUG")
 	if err != nil {
 		fmt.Printf("Error fetching fetching amadeus token: %s\n", err)
 		return
 	}
 
-	fmt.Println(token)
+	amadeusClient := amadeus.NewAmadeusClient(token)
 
-	flightInfo, err := amadeus.GetFlightInfo(destination, token)
+	// Create a new controller with the Amadeus client
+	controller := controller.NewController(amadeusClient)
+
+	// Create a new server with the controller
+	httpServer := server.NewServer(controller)
+
+	err = http.ListenAndServe(":8080", httpServer)
 	if err != nil {
-		fmt.Printf("Error fetching flight info: %s\n", err)
-		return
-	}
-
-	for _, flight := range flightInfo.Data {
-		fmt.Println(flight.Destination)
-		fmt.Println(flight.Price.Total)
+		fmt.Println("failed to start server: %w", err)
 	}
 }
