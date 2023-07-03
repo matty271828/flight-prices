@@ -8,11 +8,11 @@ import (
 )
 
 type Server struct {
-	Controller *controller.Controller
+	ControllerManager controller.ControllerManager
 }
 
-func NewServer(c *controller.Controller) *Server {
-	return &Server{Controller: c}
+func NewServer(c controller.ControllerManager) *Server {
+	return &Server{ControllerManager: c}
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ func (s *Server) handleGetDestinations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := s.Controller.GetFlightInfo(origin)
+	data, err := s.ControllerManager.GetFlightInfo(origin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
