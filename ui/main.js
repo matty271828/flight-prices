@@ -13,7 +13,7 @@ function fetchData() {
     console.log("Origin: ", origin); // add logging
 
     // Send GET request to our server
-    fetch('/api/?origin=' + origin)
+    fetch('/api/get-destinations/?origin=' + origin)
         .then(response => {
             console.log("Server Response: ", response); // add logging
             return response.json();

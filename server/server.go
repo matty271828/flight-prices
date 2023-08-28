@@ -17,10 +17,10 @@ func NewServer(c controller.ControllerManager) *Server {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Request received for path: %s", r.URL.Path)
+	fmt.Printf("Request received for path: %s\n", r.URL.Path)
 
 	switch r.URL.Path {
-	case "/":
+	case "/get-destinations/":
 		s.handleGetDestinations(w, r)
 	default:
 		http.NotFound(w, r)
