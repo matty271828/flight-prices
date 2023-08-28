@@ -1,11 +1,29 @@
+# ===============================================================================
+# INSTRUCTIONS TO UPDATE THE flight-prices.service FILE
+# ===============================================================================
+# This file has been added to .gitignore in order to serve as documentation. 
+#
+# To add this file back to the digital ocean droplet do the following: 
+# 1. SSH into the droplet - make changes using preferred editor
+# e.g. sudo vim /etc/systemd/system/flight-prices.service
+#
+# 2. After editing the file, reload systemd:
+# sudo systemctl daemon-reload
+# sudo systemctl restart flight-prices
+#
+# 3. Check status using:
+# sudo systemctl status flight-prices
+#
+# n.b. API key values will need to be manually inputted during 1. 
+# ===============================================================================
 [Unit]
 Description=Flight Prices
 After=network.target
 
 [Service]
-User=root  # The user under which your app will run. Change if needed.
-WorkingDirectory=/root/flight-prices  # Directory where your app exists
-ExecStart=/root/flight-prices/flight-prices  # Path to your application binary
+User=root
+WorkingDirectory=/root/flight-prices
+ExecStart=/root/flight-prices/flight-prices
 Restart=always  # This will ensure the app restarts if it crashes
 Environment="AMADEUS_API_KEY=$AMADEUS_API_KEY" "AMADEUS_API_SECRET=$AMADEUS_API_SECRET"  
 
