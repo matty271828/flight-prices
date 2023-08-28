@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type AmadeusClient struct {
@@ -12,7 +15,19 @@ type AmadeusClient struct {
 }
 
 func NewAmadeusClient() (*AmadeusClient, error) {
-	token, err := GetAuthToken("UAGXkYYCKiVnZfUR0wflNqz9IK3upUea", "UV2vj7DHz3wJyhUG")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("No .env file found")
+	}
+
+	clientId := os.Getenv("AMADEUS_API_KEY")
+	clientSecret := os.Getenv("AMADEUS_API_SECRET")
+
+	if clientId == "" || clientSecret == "" {
+		return nil, fmt.Errorf("Environment variables for Amadeus API not set")
+	}
+
+	token, err := GetAuthToken(clientId, clientSecret)
 	if err != nil {
 		fmt.Printf("Error fetching fetching amadeus token: %s\n", err)
 		return nil, err
