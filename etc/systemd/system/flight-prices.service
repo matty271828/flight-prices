@@ -1,7 +1,8 @@
 # ===============================================================================
 # INSTRUCTIONS TO UPDATE THE flight-prices.service FILE
 # ===============================================================================
-# This file has been added to .gitignore in order to serve as documentation. 
+# This file has been added to to serve as documentation. Any changes will need
+# to be manually added to the droplet.
 #
 # To add this file back to the digital ocean droplet do the following: 
 # 1. SSH into the droplet - make changes using preferred editor
