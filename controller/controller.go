@@ -5,13 +5,13 @@ import (
 )
 
 type Controller struct {
-	AmadeusClient *amadeus.AmadeusClient
+	AmadeusManager amadeus.AmadeusManager
 }
 
-func NewController(a *amadeus.AmadeusClient) *Controller {
-	return &Controller{AmadeusClient: a}
+func NewController(a amadeus.AmadeusManager) *Controller {
+	return &Controller{AmadeusManager: a}
 }
 
 func (c *Controller) GetFlightInfo(origin string) (*amadeus.ApiResponse, error) {
-	return c.AmadeusClient.GetFlightInfo(origin)
+	return c.AmadeusManager.GetFlightInfo(origin)
 }
