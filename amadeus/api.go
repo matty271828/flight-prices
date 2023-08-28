@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -77,7 +78,25 @@ func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 
 	// Check status code
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
+		var errorResponse AmadeusError
+		json.Unmarshal(bodyBytes, &errorResponse)
+
+		// Construct a neat error message
+		var errorMsgs []string
+		for _, errDetail := range errorResponse.Errors {
+			errorMsg := fmt.Sprintf(
+				"Code: %d, Title: %s, Detail: %s, Status: %d",
+				errDetail.Code,
+				errDetail.Title,
+				errDetail.Detail,
+				errDetail.Status,
+			)
+			errorMsgs = append(errorMsgs, errorMsg)
+		}
+
+		return nil, fmt.Errorf("unexpected status: %d. Errors: %s", resp.StatusCode, strings.Join(errorMsgs, " | "))
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
