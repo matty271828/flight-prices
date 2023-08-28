@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/matty271828/flight-prices/controller"
@@ -17,7 +18,8 @@ func NewServer(c controller.ControllerManager) *Server {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Request received for path: %s\n", r.URL.Path)
+	msg := fmt.Sprintf("Request received for path: %s\n", r.URL.Path)
+	log.Println(msg)
 
 	switch r.URL.Path {
 	case "/get-destinations/":
@@ -33,14 +35,15 @@ func (s *Server) handleGetDestinations(w http.ResponseWriter, r *http.Request) {
 
 	if origin == "" {
 		http.Error(w, "origin query parameter is required", http.StatusBadRequest)
-		fmt.Printf("Error: origin query parameter is required\n")
+		log.Println("Error: origin query parameter is required")
 		return
 	}
 
 	data, err := s.ControllerManager.GetFlightInfo(origin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		fmt.Printf("Error getting flight info: %v\n", err)
+		err := fmt.Sprintf("Error getting flight info: %v\n", err)
+		log.Println(err)
 		return
 	}
 
@@ -48,13 +51,15 @@ func (s *Server) handleGetDestinations(w http.ResponseWriter, r *http.Request) {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		fmt.Printf("Error marshalling data: %v\n", err)
+		err := fmt.Sprintf("Error marshalling data: %v\n", err)
+		log.Println(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(jsonData)
 	if err != nil {
-		fmt.Printf("Error writing response: %v\n", err)
+		err := fmt.Sprintf("Error writing response: %v\n", err)
+		log.Println(err)
 	}
 }

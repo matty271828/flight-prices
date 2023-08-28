@@ -18,7 +18,8 @@ func main() {
 
 	amadeusClient, err := amadeus.NewAmadeusClient()
 	if err != nil {
-		fmt.Printf("Error getting amadeus client: %s\n", err)
+		err := fmt.Sprintf("Error getting amadeus client: %s\n", err)
+		log.Println(err)
 		return
 	}
 
