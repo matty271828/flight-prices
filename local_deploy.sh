@@ -12,7 +12,7 @@ fi
 
 # Step 2: Run the binary
 echo "Starting the application..."
-./flight-prices-binary &
+./flight-prices-binary & echo $! > app.pid
 
 # Allow some time for the server to start
 sleep 2
