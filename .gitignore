@@ -23,3 +23,5 @@ go.work
 .env
 
 flight-prices-binary
+
+deploy.sh
