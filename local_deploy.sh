@@ -10,6 +10,17 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Check if a process is already running
+if [ -f app.pid ]; then
+    pid=$(cat app.pid)
+    if ps -p $pid > /dev/null; then
+        echo "Stopping the existing application (PID: $pid)..."
+        kill $pid
+        sleep 1
+    fi
+    rm app.pid
+fi
+
 # Step 2: Run the binary
 echo "Starting the application..."
 ./flight-prices-binary & echo $! > app.pid
