@@ -24,11 +24,11 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/root/flight-prices
-ExecStart=/root/flight-prices/flight-prices
+ExecStart=/root/flight-prices/flight-prices-linux
 Restart=always  # This will ensure the app restarts if it crashes
 Environment="AMADEUS_API_KEY=$AMADEUS_API_KEY" "AMADEUS_API_SECRET=$AMADEUS_API_SECRET"
-StandardOutput=append:/path/to/your/logfile.log
-StandardError=append:/path/to/your/error.log  
+StandardOutput=append:/root/flight-prices/logfile.log
+StandardError=append:/root/flight-prices/error.log  
 
 [Install]
 WantedBy=multi-user.target
