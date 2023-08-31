@@ -1,25 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flight Price Comparison</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Way Flights</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h2>Find the cheapest flights!</h2>
-    <label for="origin">Origin Airport:</label><br>
-    <input type="text" id="origin" name="origin"><br>
-    <button onclick="fetchData()">Find Flights</button>
-
-    <h2>Results</h2>
-    <table id="results-table">
-        <tr>
-            <th>Destination</th>
-            <th>Departure Date</th>
-            <th>Price</th>
-            <th>Book Link</th>
-        </tr>
-    </table>
-
+    <header>
+        <h1>Two Way Flights</h1>
+        <!-- You can also include a logo here if you have one -->
+    </header>
+    <div class="content-wrap">  <!-- Start of the new content-wrap div -->
+        <main>
+            <section class="deals">
+                <!-- Sample deal structure, you can replicate this structure for other deals -->
+                <div class="deal">
+                    <div class="destination">
+                        <h2>Liverpool -> Rome</h2>
+                    </div>
+                    <div class="return">
+                        <h2>Rome -> Liverpool</h2>
+                    </div>
+                </div>
+                <div class="deal">
+                    <div class="destination">
+                        <h2>London Heathrow -> New York JFK</h2>
+                    </div>
+                    <div class="return">
+                        <h2>Boston Logan -> London Heathrow</h2>
+                    </div>
+                </div>
+                <!-- More deals can be added here -->
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2023 Two Way Flights Inc. All rights reserved.</p>
+        </footer>
+    </div>  <!-- End of the content-wrap div -->
     <script src="main.js"></script>
 </body>
 </html>
+
+
 
