@@ -5,41 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Two Way Flights</title>
     <link rel="stylesheet" href="/static/styles.css?v={{cssTimestamp}}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
 </head>
 <body>
+
     <header>
-        <h1>Two Way Flights</h1>
-        <!-- You can also include a logo here if you have one -->
+        BEST FLIGHT DEALS
+        <!-- Navigation could go here if you have it -->
     </header>
-    <div class="content-wrap">  <!-- Start of the new content-wrap div -->
-        <main>
-            <section class="deals">
-                <!-- Sample deal structure, you can replicate this structure for other deals -->
-                <div class="deal">
-                    <div class="destination">
-                        <h2>Liverpool -> Rome</h2>
-                    </div>
-                    <div class="return">
-                        <h2>Rome -> Liverpool</h2>
-                    </div>
-                </div>
-                <div class="deal">
-                    <div class="destination">
-                        <h2>London Heathrow -> New York JFK</h2>
-                    </div>
-                    <div class="return">
-                        <h2>Boston Logan -> London Heathrow</h2>
-                    </div>
-                </div>
-                <!-- More deals can be added here -->
-            </section>
-        </main>
-        <footer>
-            <p>&copy; 2023 Two Way Flights Inc. All rights reserved.</p>
-        </footer>
-    </div>  <!-- End of the content-wrap div -->
-    <script src="/static/main.js?v={{jsTimestamp}}"></script>
+
+    <section class="search-bar">
+        Search: 
+        <input type="text" placeholder="Liverpool"> -> 
+        <input type="text" placeholder="Destination"> -> 
+        <input type="text" placeholder="Liverpool">
+        <button>Search</button>
+    </section>
+
+    <section class="deals">
+        <h2>TODAY'S TOP DEALS</h2>
+        <div class="deal">
+            Liverpool -> Rome<br>
+            $50 | XYZ Airlines<br>
+            Date: July 5th<br>
+            <button>View Deal</button>
+        </div>
+        <div class="deal">
+            Naples -> Liverpool<br>
+            $60 | ABC Airlines<br>
+            Date: July 12th<br>
+            <button>View Deal</button>
+        </div>
+    </section>
+
+    <section class="deals">
+        <h2>OTHER HOT DEALS</h2>
+        <div class="deal">
+            Liverpool -> Milan<br>
+            $55 | ZYX Airlines<br>
+            Date: July 7th<br>
+            <button>View Deal</button>
+        </div>
+        <div class="deal">
+            Florence -> Liverpool<br>
+            $65 | DEF Airlines<br>
+            Date: July 14th<br>
+            <button>View Deal</button>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-section">
+            <i class="fas fa-info-circle"></i> About Us
+        </div>
+        <div class="footer-section">
+            <i class="fas fa-file-alt"></i> Terms & Conditions
+        </div>
+        <div class="footer-section">
+            <i class="fas fa-phone-alt"></i> Contact
+        </div>
+        <div class="footer-section">
+            <i class="fas fa-question-circle"></i> FAQ
+        </div>
+        <div class="footer-section newsletter" id="full-span">
+            <label for="newsletter">Stay Updated:</label>
+            <input type="email" id="newsletter" placeholder="Your email">
+            <button>Subscribe</button>
+        </div>
+    </footer>
+
 </body>
 </html>
 
