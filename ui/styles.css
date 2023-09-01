@@ -1,133 +1,157 @@
 /* styles.css */
 body, html {
     height: 100%;
+    font-family: 'Poppins', sans-serif; /* Use the Poppins font */
 }
 
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #EAEAEA; /* Light grayish background */
+    background-color: #EAEAEA;
     display: flex;
     flex-direction: column;
 }
 
 header {
-    background-color: #A8DADC; /* Pastel blue */
-    color: #707070; /* Soft gray */
+    background-color: #A8DADC;
+    color: #707070;
     text-align: center;
-    padding: 20px 0;
+    padding: 30px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Added subtle shadow for depth */
 }
 
 .search-bar {
-    background-color: #FFD6A5; /* Pastel peach */
-    padding: 20px;
+    background-color: #FFD6A5;
+    padding: 30px;
     text-align: center;
-    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adjusted shadow for depth */
+}
+
+.search-bar input, .search-bar button {
+    transition: all 0.3s; /* Transition for smoothness */
+}
+
+.search-bar input:focus, .search-bar button:hover {
+    transform: scale(1.02); /* Small zoom effect on focus/hover */
 }
 
 .search-bar input {
-    padding: 10px;
+    padding: 12px 20px; /* Increased padding */
     margin: 10px;
-    border: 1px solid #B8F2E6; /* Pastel mint */
+    border: 1px solid #B8F2E6;
+    border-radius: 20px; /* Rounded edges for a more modern look */
 }
 
 .search-bar button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    background-color: #B8F2E6; /* Pastel mint */
-    color: #707070; /* Soft gray */
+    background-color: #B8F2E6;
+    color: #707070;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 20px; /* Increased border-radius */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Added shadow for depth */
 }
 
 .deals {
-    padding: 20px;
+    padding: 40px 20px; /* Increased padding */
     text-align: center;
     flex: 1;
 }
 
 h2 {
-    border-bottom: 2px solid #A8DADC; /* Pastel blue */
+    border-bottom: 2px solid #A8DADC;
     display: inline-block;
     padding: 0 20px 10px;
-    color: #707070; /* Soft gray */
+    color: #707070;
+    font-weight: 500; /* Increased font weight for headings */
 }
 
 .deal {
-    background-color: #FFFFFF; /* Pure white for contrast */
-    padding: 20px;
+    background-color: #FFFFFF;
+    padding: 25px; /* Increased padding */
     margin: 20px;
-    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Rounded edges for cards */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adjusted shadow for depth */
     display: inline-block;
-    width: calc(50% - 50px); /* accounting for margin */
+    width: calc(50% - 50px);
+    transition: all 0.3s; /* Transition for hover effects */
+}
+
+.deal:hover {
+    transform: translateY(-5px); /* Small lift effect on hover */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); /* Shadow intensifies on hover */
 }
 
 .deal button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    background-color: #A8DADC; /* Pastel blue */
-    color: #707070; /* Soft gray */
+    background-color: #A8DADC;
     color: white;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 20px; /* Consistent rounded edges */
     margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Added shadow for depth */
+    transition: all 0.3s; /* Transition for hover effects */
 }
 
 footer {
-    background-color: #B8F2E6; /* Pastel mint */
-    color: #707070; /* Soft gray */
+    background-color: #B8F2E6;
+    color: #707070;
     text-align: center;
-    padding: 20px 0;
+    padding: 40px 0; /* Increased padding */
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     align-items: center;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05); /* Shadow for depth */
 }
 
 .footer-section {
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.3s; /* Transition for smoothness */
 }
 
 .footer-section:hover {
-    color: #A8DADC; /* Pastel blue */
+    color: #A8DADC;
 }
 
 .footer-section i {
     margin-right: 10px;
+    font-size: 20px; /* Larger icons */
 }
 
 .newsletter {
-    grid-column: 1 / -1; /* This makes it span the entire grid */
-    padding: 20px;
-    border-top: 2px solid #A8DADC; /* Pastel blue */
-    background-color: #FFD6A5; /* Pastel peach */
+    grid-column: 1 / -1;
+    padding: 30px; /* Increased padding */
+    border-top: 2px solid #A8DADC;
+    background-color: #FFD6A5;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 10px; /* Rounded edges for the newsletter section */
 }
 
 .newsletter label {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .newsletter input {
-    padding: 10px;
+    padding: 12px 20px;
     margin: 10px 0;
-    border: 1px solid #B8F2E6; /* Pastel mint */
-    width: 50%; /* Half the width of its container */
-    max-width: 400px; /* Optional: Set a maximum width for really wide screens */
+    border: 1px solid #B8F2E6;
+    border-radius: 20px; /* Consistent rounded edges */
+    width: 50%;
+    max-width: 400px;
 }
 
 .newsletter button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    background-color: #A8DADC; /* Pastel blue */
-    color: #707070; /* Soft gray */
+    background-color: #A8DADC;
+    color: #707070;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 20px; /* Consistent rounded edges */
 }
 
 @media (max-width: 768px) {
@@ -136,7 +160,7 @@ footer {
     }
 
     .newsletter {
-        grid-column: 1 / -1; /* Ensure it spans the entire width on all screen sizes */
+        grid-column: 1 / -1;
     }
 }
 
@@ -146,6 +170,7 @@ footer {
         gap: 15px;
     }
 }
+
 
 
 
