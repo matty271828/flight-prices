@@ -1,7 +1,7 @@
 /* styles.css */
 body, html {
     height: 100%;
-    font-family: 'Poppins', sans-serif; /* Use the Poppins font */
+    font-family: 'Poppins', sans-serif;
 }
 
 body {
@@ -17,29 +17,29 @@ header {
     color: #707070;
     text-align: center;
     padding: 30px 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Added subtle shadow for depth */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .search-bar {
     background-color: #FFD6A5;
     padding: 30px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adjusted shadow for depth */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .search-bar input, .search-bar button {
-    transition: all 0.3s; /* Transition for smoothness */
+    transition: all 0.3s;
 }
 
 .search-bar input:focus, .search-bar button:hover {
-    transform: scale(1.02); /* Small zoom effect on focus/hover */
+    transform: scale(1.02);
 }
 
 .search-bar input {
-    padding: 12px 20px; /* Increased padding */
+    padding: 12px 20px;
     margin: 10px;
     border: 1px solid #B8F2E6;
-    border-radius: 20px; /* Rounded edges for a more modern look */
+    border-radius: 20px;
 }
 
 .search-bar button {
@@ -48,38 +48,30 @@ header {
     background-color: #B8F2E6;
     color: #707070;
     cursor: pointer;
-    border-radius: 20px; /* Increased border-radius */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Added shadow for depth */
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .deals {
-    padding: 40px 20px; /* Increased padding */
+    padding: 40px 20px;
     text-align: center;
     flex: 1;
 }
 
-h2 {
-    border-bottom: 2px solid #A8DADC;
-    display: inline-block;
-    padding: 0 20px 10px;
-    color: #707070;
-    font-weight: 500; /* Increased font weight for headings */
-}
-
 .deal {
     background-color: #FFFFFF;
-    padding: 25px; /* Increased padding */
+    padding: 25px;
     margin: 20px;
-    border-radius: 10px; /* Rounded edges for cards */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adjusted shadow for depth */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: inline-block;
     width: calc(50% - 50px);
-    transition: all 0.3s; /* Transition for hover effects */
+    transition: all 0.3s;
 }
 
 .deal:hover {
-    transform: translateY(-5px); /* Small lift effect on hover */
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); /* Shadow intensifies on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .deal button {
@@ -88,28 +80,28 @@ h2 {
     background-color: #A8DADC;
     color: white;
     cursor: pointer;
-    border-radius: 20px; /* Consistent rounded edges */
+    border-radius: 20px;
     margin-top: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Added shadow for depth */
-    transition: all 0.3s; /* Transition for hover effects */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
 }
 
 footer {
-    background-color: #B8F2E6;
+    background-color: #A8DADC;
     color: #707070;
     text-align: center;
-    padding: 40px 0; /* Increased padding */
+    padding: 40px 0;
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     align-items: center;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05); /* Shadow for depth */
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .footer-section {
     cursor: pointer;
-    transition: all 0.3s; /* Transition for smoothness */
+    transition: all 0.3s;
 }
 
 .footer-section:hover {
@@ -118,18 +110,18 @@ footer {
 
 .footer-section i {
     margin-right: 10px;
-    font-size: 20px; /* Larger icons */
+    font-size: 20px;
 }
 
 .newsletter {
     grid-column: 1 / -1;
-    padding: 30px; /* Increased padding */
+    padding: 30px;
     border-top: 2px solid #A8DADC;
     background-color: #FFD6A5;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-radius: 10px; /* Rounded edges for the newsletter section */
+    border-radius: 10px;
 }
 
 .newsletter label {
@@ -139,8 +131,8 @@ footer {
 .newsletter input {
     padding: 12px 20px;
     margin: 10px 0;
-    border: 1px solid #B8F2E6;
-    border-radius: 20px; /* Consistent rounded edges */
+    border: 1px solid #A8DADC;
+    border-radius: 20px;
     width: 50%;
     max-width: 400px;
 }
@@ -151,7 +143,7 @@ footer {
     background-color: #A8DADC;
     color: #707070;
     cursor: pointer;
-    border-radius: 20px; /* Consistent rounded edges */
+    border-radius: 20px;
 }
 
 @media (max-width: 768px) {
@@ -171,8 +163,17 @@ footer {
     }
 }
 
+/* Advanced Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
 
-
-
-
-
+h2 {
+    border-bottom: 2px solid#A8DADC;
+    display: inline-block;
+    padding: 0 20px 10px;
+    color: #707070;
+    font-weight: 500;
+}
