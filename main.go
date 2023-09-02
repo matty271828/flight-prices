@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/matty271828/flight-prices/amadeus"
@@ -16,6 +17,8 @@ import (
 )
 
 func main() {
+	var wg sync.WaitGroup
+
 	// Get the path of the currently running executable
 	execPath, err := os.Executable()
 	if err != nil {
@@ -33,38 +36,68 @@ func main() {
 	c := controller.NewController(amadeusClient)
 	s := server.NewServer(c)
 
+	// Start UI Handler
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		routes := []string{"/api"}
+		setupServer(basepath, "ui", "8080", routes, s)
+	}()
+
+	// Start Dev UI Handler
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		routes := []string{}
+		setupServer(basepath, "ui-dev", "8091", routes, s)
+	}()
+
+	// Wait until all servers are done
+	wg.Wait()
+}
+
+// setupServer is used to setup a server on a requested port with a supplied ui
+func setupServer(basepath, dir, port string, routes []string, s *server.Server) {
 	mux := http.NewServeMux()
-	mux.Handle("/api/", http.StripPrefix("/api", s))
+	if routes != nil {
+		for _, route := range routes {
+			mux.Handle(route+"/", http.StripPrefix(route, s))
+		}
+	}
 
 	// Serve index.html dynamically, this is for cachebusting
-	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/", serveIndexFromDir(dir))
 
-	uiPath := filepath.Join(basepath, "ui")
-	log.Printf("Serving UI from: %s", uiPath) // Log the UI path for debugging
+	dirPath := filepath.Join(basepath, dir)
+	log.Printf("Serving UI from: %s", dirPath) // Log the dirPath for debugging
 
 	// Serve other static files
-	fs := http.FileServer(http.Dir(uiPath))
+	fs := http.FileServer(http.Dir(dirPath))
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
-	// Start the server
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Printf("Server listening on port %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+// serveIndexFromDir is used to serve the index file of a ui directory
+func serveIndexFromDir(dirPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+
+		modifiedContent, err := generateHTML(filepath.Join(dirPath, "index.html"))
+		if err != nil {
+			http.Error(w, "Failed to generate content", http.StatusInternalServerError)
+			return
+		}
+		w.Write([]byte(modifiedContent))
 	}
-	modifiedContent, err := generateHTML()
-	if err != nil {
-		http.Error(w, "Failed to generate content", http.StatusInternalServerError)
-		return
-	}
-	w.Write([]byte(modifiedContent))
 }
 
-func generateHTML() (string, error) {
-	content, err := ioutil.ReadFile("ui/index.html")
+func generateHTML(filepath string) (string, error) {
+	content, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return "", err
 	}
