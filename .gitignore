@@ -24,7 +24,6 @@ go.work
 
 flight-prices-binary
 
-deploy.sh
 local_deploy.sh
 stop_local_deploy.sh
 
