@@ -36,7 +36,7 @@ section {
 h3 {
     border-bottom: 3px dashed #39483A; 
     padding-bottom: 10px;
-    text-transform: uppercase; /* Gives a structured feel */
+    text-transform: uppercase; 
 }
 
 table {
@@ -47,6 +47,11 @@ table {
 
 table, th, td {
     border: 1px solid #39483A;
+}
+
+.table-wrapper {
+    overflow-x: auto; /* This makes it scrollable horizontally */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
 }
 
 th, td {
@@ -65,6 +70,20 @@ tr:hover {
     background-color: #262626; 
 }
 
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #7BA05B; 
+    color: #1F1F1F;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background-color: #638E47; 
+}
+
 footer {
     background-color: #1F1F1F;
     padding: 20px 0;
@@ -76,4 +95,37 @@ footer p {
     text-align: center;
     color: #A9A9A9;
 }
+
+/* Responsive Styles */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    nav, footer {
+        padding: 10px 0;
+    }
+
+    section {
+        padding: 20px 0;
+    }
+
+    table, th, td {
+        font-size: 14px; /* Adjust font-size for better legibility on smaller screens */
+    }
+
+    th, td {
+        padding: 8px 12px;
+    }
+
+    nav h1 {
+        font-size: 18px; /* Adjust heading size for mobile */
+    }
+
+    table {
+        min-width: 600px; /* This ensures the table doesn't get too squished. Adjust based on your needs */
+    }
+}
+
 
