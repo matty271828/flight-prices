@@ -24,8 +24,9 @@ SSL_SETUP=$(ssh ${REMOTE_SERVER} "[ -f ${SSL_CERTIFICATE_PATH} ] && echo '1' || 
 
 if [ "$SSL_SETUP" -eq "0" ]; then
     # Certificates are not set up, run Certbot
-    echo "SSL certificates not found. Running Certbot..."
-    ssh ${REMOTE_SERVER} "sudo certbot --nginx -d twowayflights.com -d www.twowayflights.com"
+    read -p "Enter your email address for Let's Encrypt: " EMAIL_ADDRESS
+    echo "Running Certbot..."
+    ssh ${REMOTE_SERVER} "sudo certbot --nginx -d twowayflights.com -d www.twowayflights.com --email $EMAIL_ADDRESS"
     echo "Certbot setup completed."
 else
     echo "SSL certificates found. Skipping Certbot setup."
