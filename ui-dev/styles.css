@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #181818; /* Dark background */
-    color: #A9A9A9; /* Grey text for better contrast */
+    font-family: 'Roboto', sans-serif;
+    background-color: #181818; 
+    color: #A9A9A9; 
     margin: 0;
     padding: 0;
 }
@@ -10,17 +12,21 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 15px;
+    background: #202020; 
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 nav {
-    background-color: #1F1F1F; /* Slightly different shade for navbar */
+    background-color: #1F1F1F; 
     padding: 15px 0;
-    border-bottom: 2px solid #39483A; /* Military green border */
+    border-bottom: 3px solid #39483A; 
 }
 
 nav h1 {
     margin: 0;
-    color: #7BA05B; /* Brighter green for emphasis */
+    color: #7BA05B; 
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 section {
@@ -28,8 +34,9 @@ section {
 }
 
 h3 {
-    border-bottom: 2px dashed #39483A; /* Dashed green border for section titles */
+    border-bottom: 3px dashed #39483A; 
     padding-bottom: 10px;
+    text-transform: uppercase; /* Gives a structured feel */
 }
 
 table {
@@ -45,21 +52,23 @@ table, th, td {
 th, td {
     padding: 10px 15px;
     text-align: left;
+    transition: background 0.3s;
 }
 
 th {
     background-color: #1F1F1F; 
-    color: #7BA05B; /* Military green for headers */
+    color: #7BA05B; 
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 tr:hover {
-    background-color: #262626; /* Slight hover effect to see which row is being hovered */
+    background-color: #262626; 
 }
 
 footer {
     background-color: #1F1F1F;
     padding: 20px 0;
-    border-top: 2px solid #39483A;
+    border-top: 3px solid #39483A;
 }
 
 footer p {
@@ -68,4 +77,3 @@ footer p {
     color: #A9A9A9;
 }
 
-/* If you want a more 'radar' green, you can use color like #00FF00 in certain places */

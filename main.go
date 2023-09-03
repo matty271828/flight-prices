@@ -26,6 +26,8 @@ func main() {
 	}
 	basepath := filepath.Dir(execPath)
 
+	fmt.Println(basepath)
+
 	amadeusClient, err := amadeus.NewAmadeusClient()
 	if err != nil {
 		err := fmt.Sprintf("Error getting amadeus client: %s\n", err)
@@ -41,7 +43,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		routes := []string{"/api"}
-		setupServer(basepath, "ui", "8080", routes, s)
+		setupServer(basepath, "ui", "/static/", "8080", routes, s)
 	}()
 
 	// Start Dev UI Handler
@@ -49,7 +51,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		routes := []string{}
-		setupServer(basepath, "ui-dev", "8091", routes, s)
+		setupServer(basepath, "ui-dev", "/devstatic/", "8091", routes, s)
 	}()
 
 	// Wait until all servers are done
@@ -57,8 +59,9 @@ func main() {
 }
 
 // setupServer is used to setup a server on a requested port with a supplied ui
-func setupServer(basepath, dir, port string, routes []string, s *server.Server) {
+func setupServer(basepath, dir, staticRoute, port string, routes []string, s *server.Server) {
 	mux := http.NewServeMux()
+
 	if routes != nil {
 		for _, route := range routes {
 			mux.Handle(route+"/", http.StripPrefix(route, s))
@@ -69,13 +72,13 @@ func setupServer(basepath, dir, port string, routes []string, s *server.Server) 
 	mux.HandleFunc("/", serveIndexFromDir(dir))
 
 	dirPath := filepath.Join(basepath, dir)
-	log.Printf("Serving UI from: %s", dirPath) // Log the dirPath for debugging
+	log.Printf("UI Directory Path: %s", dirPath)
 
 	// Serve other static files
 	fs := http.FileServer(http.Dir(dirPath))
-	mux.Handle("/static/", http.StripPrefix("/static", fs))
+	mux.Handle(staticRoute, http.StripPrefix(staticRoute, fs))
 
-	log.Printf("Server listening on port %s", port)
+	log.Printf("HTTP Server initialized on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
