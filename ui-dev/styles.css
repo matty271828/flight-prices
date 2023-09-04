@@ -33,11 +33,28 @@ nav h1 {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+.status-boxes-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between boxes */
+    margin-top: 50px; 
+}
+
+/* Specific styles for Cost and Usage boxes */
+.cost-box, .usage-box {
+    height: 250px;  /* Adjust this value based on your preference */
+    overflow: auto;  /* In case the content exceeds the box height, it will be scrollable */
+    border-color: #39483A;  /* Default border for cost and usage boxes */
+}
+
+.cost-box h2, .usage-box h2 {
+    color: #39483A; /* Default color for the text inside cost and usage boxes */
+}
+
 /* Default API Status Box Styling */
 .api-status-box {
     width: 25%;
     margin: auto;
-    margin-top: 50px; /* Adjust this as needed */
     padding: 30px 15px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -136,35 +153,57 @@ footer p {
 }
 
 /* Responsive Styles */
-
 @media (max-width: 768px) {
+    /* Stacking boxes vertically on mobile */
+    .status-boxes-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Adjusting box widths on mobile for better visibility */
+    .cost-box, .usage-box, .api-status-box {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+
+    /* Adjusting general container padding on mobile */
     .container {
         padding: 10px;
     }
 
+    /* Adjusting navigation and footer padding on mobile */
     nav, footer {
         padding: 10px 0;
     }
 
+    /* Adjusting section padding on mobile */
     section {
         padding: 20px 0;
     }
 
+    /* Adjusting font sizes and padding for tables on mobile */
     table, th, td {
-        font-size: 14px; /* Adjust font-size for better legibility on smaller screens */
+        font-size: 14px;
     }
 
     th, td {
         padding: 8px 12px;
     }
 
+    /* Adjusting navigation heading size for mobile */
     nav h1 {
-        font-size: 18px; /* Adjust heading size for mobile */
+        font-size: 18px;
     }
 
-    table {
-        min-width: 600px; /* This ensures the table doesn't get too squished. Adjust based on your needs */
+    /* Handling table overflow on mobile for specific table wrappers */
+    .cost-box .table-wrapper, .usage-box .table-wrapper {
+        overflow-x: auto; /* This makes it scrollable horizontally */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    }
+
+    /* Specific width adjustment for tables within the cost and usage boxes */
+    .cost-box table, .usage-box table {
+        min-width: 600px;
+        width: 100%;
     }
 }
-
-
