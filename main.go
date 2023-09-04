@@ -26,7 +26,10 @@ func main() {
 	cfg := loadConfig()
 
 	// Create Amadeus Client
-	amadeusClient, _ := setupAmadeusClient(cfg)
+	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
+	if err != nil {
+		log.Fatalf("Error initializing Amadeus client: %s\n", err)
+	}
 
 	c := controller.NewController(amadeusClient)
 
@@ -54,15 +57,6 @@ func loadConfig() amadeus.Config {
 		ClientId:     os.Getenv("AMADEUS_API_KEY"),
 		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
 	}
-}
-
-func setupAmadeusClient(cfg amadeus.Config) (*amadeus.AmadeusClient, error) {
-	client, err := amadeus.NewAmadeusClient(cfg)
-	if err != nil {
-		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
-		log.Println(errMsg)
-	}
-	return client, err
 }
 
 func setupServers(basepath string, c *controller.Controller, wg *sync.WaitGroup) {
