@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/controller"
 	"github.com/matty271828/flight-prices/server"
@@ -37,7 +36,10 @@ func main() {
 	}
 
 	c := controller.NewController(amadeusClient)
+
 	s := server.NewServer(c)
+	devS := server.NewServer(c)
+	devS.SetupRoutes() // Only setup API routes for the 8091 server
 
 	// Start UI Handler
 	wg.Add(1)
@@ -50,7 +52,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		setupServer(basepath, "ui-dev", "/devstatic/", "8091", s)
+		setupServer(basepath, "ui-dev", "/devstatic/", "8091", devS)
 	}()
 
 	// Wait until all servers are done
@@ -59,7 +61,7 @@ func main() {
 
 // setupServer is used to setup a server on a requested port with a supplied ui
 func setupServer(basepath, dir, staticRoute, port string, s *server.Server) {
-	r := mux.NewRouter()
+	r := s.Router
 
 	// Serve the index.html dynamically for cachebusting
 	r.HandleFunc("/", serveIndexFromDir(dir))
@@ -68,10 +70,6 @@ func setupServer(basepath, dir, staticRoute, port string, s *server.Server) {
 	dirPath := filepath.Join(basepath, dir)
 	fs := http.FileServer(http.Dir(dirPath))
 	r.PathPrefix(staticRoute).Handler(http.StripPrefix(staticRoute, fs))
-
-	// Mount the API router on a subrouter
-	apiRouter := r.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/get-destinations/", s.HandleGetDestinations).Methods("GET")
 
 	log.Printf("HTTP Server initialized on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
