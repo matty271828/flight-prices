@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/controller"
 	"github.com/matty271828/flight-prices/server"
@@ -18,6 +19,9 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
+
+	// Attempt to load from .env file, if it exists
+	_ = godotenv.Load() // We ignore the error since it's optional
 
 	// Get the path of the currently running executable
 	execPath, err := os.Executable()
@@ -28,7 +32,12 @@ func main() {
 
 	fmt.Println(basepath)
 
-	amadeusClient, err := amadeus.NewAmadeusClient()
+	cfg := amadeus.Config{
+		ClientId:     os.Getenv("AMADEUS_API_KEY"),
+		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
+	}
+
+	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
 	if err != nil {
 		err := fmt.Sprintf("Error getting amadeus client: %s\n", err)
 		log.Println(err)

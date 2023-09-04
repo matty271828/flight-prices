@@ -5,39 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"strings"
-
-	"github.com/joho/godotenv"
 )
-
-type AmadeusClient struct {
-	Token string
-}
-
-func NewAmadeusClient() (*AmadeusClient, error) {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("No .env file found")
-	}
-
-	clientId := os.Getenv("AMADEUS_API_KEY")
-	clientSecret := os.Getenv("AMADEUS_API_SECRET")
-
-	fmt.Printf("ClientId: %s, ClientSecret: %s\n", clientId, clientSecret)
-
-	if clientId == "" || clientSecret == "" {
-		return nil, fmt.Errorf("Environment variables for Amadeus API not set")
-	}
-
-	token, err := GetAuthToken(clientId, clientSecret)
-	if err != nil {
-		fmt.Printf("Error fetching fetching amadeus token: %s\n", err)
-		return nil, err
-	}
-
-	return &AmadeusClient{Token: token}, nil
-}
 
 type ApiResponse struct {
 	Data []FlightDestination `json:"data"`
@@ -94,28 +62,4 @@ func (a *AmadeusClient) FlightOffersSearch(origin string) (*ApiResponse, error) 
 	}
 
 	return &apiResponse, nil
-}
-
-func checkStatusCode(resp *http.Response) error {
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-
-	var errorResponse AmadeusError
-	err := json.Unmarshal(bodyBytes, &errorResponse)
-	if err != nil {
-		return fmt.Errorf("Error parsing error response: %v. Body: %s", err, string(bodyBytes))
-	}
-
-	// Construct a neat error message
-	var errorMsgs []string
-	for _, errDetail := range errorResponse.Errors {
-		errorMsg := fmt.Sprintf(
-			"Code: %d, Title: %s, Detail: %s, Status: %d",
-			errDetail.Code,
-			errDetail.Title,
-			errDetail.Detail,
-			errDetail.Status,
-		)
-		errorMsgs = append(errorMsgs, errorMsg)
-	}
-	return fmt.Errorf("Errors: %s", strings.Join(errorMsgs, " | "))
 }
