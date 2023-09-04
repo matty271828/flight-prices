@@ -12,6 +12,6 @@ func NewController(a amadeus.AmadeusManager) *Controller {
 	return &Controller{AmadeusManager: a}
 }
 
-func (c *Controller) GetFlightInfo(origin string) (*amadeus.ApiResponse, error) {
-	return c.AmadeusManager.GetFlightInfo(origin)
+func (c *Controller) FlightOffersSearch(origin string) (*amadeus.ApiResponse, error) {
+	return c.AmadeusManager.FlightOffersSearch(origin)
 }

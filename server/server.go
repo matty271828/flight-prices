@@ -40,7 +40,7 @@ func (s *Server) HandleGetDestinations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := s.ControllerManager.GetFlightInfo(origin)
+	data, err := s.ControllerManager.FlightOffersSearch(origin)
 	if err != nil {
 		errorMsg := fmt.Sprintf("Error getting flight info for origin %s: %v", origin, err)
 		log.Println(errorMsg)

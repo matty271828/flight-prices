@@ -62,7 +62,7 @@ type Links struct {
 	FlightOffers string `json:"flightOffers"`
 }
 
-func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
+func (a *AmadeusClient) FlightOffersSearch(origin string) (*ApiResponse, error) {
 	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", origin)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
