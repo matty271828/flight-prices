@@ -20,53 +20,68 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
+	// Setup environment variables and basepath
+	basepath := setupEnv()
+
+	cfg := loadConfig()
+
+	// Create Amadeus Client
+	amadeusClient, _ := setupAmadeusClient(cfg)
+
+	c := controller.NewController(amadeusClient)
+
+	// Setup servers
+	setupServers(basepath, c, &wg)
+
+	// Wait until all servers are done
+	wg.Wait()
+}
+
+func setupEnv() string {
 	// Attempt to load from .env file, if it exists
-	_ = godotenv.Load() // We ignore the error since it's optional
+	_ = godotenv.Load()
 
 	// Get the path of the currently running executable
 	execPath, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Error determining executable path: %s\n", err)
 	}
-	basepath := filepath.Dir(execPath)
+	return filepath.Dir(execPath)
+}
 
-	fmt.Println(basepath)
-
-	cfg := amadeus.Config{
+func loadConfig() amadeus.Config {
+	return amadeus.Config{
 		ClientId:     os.Getenv("AMADEUS_API_KEY"),
 		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
 	}
+}
 
-	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
+func setupAmadeusClient(cfg amadeus.Config) (*amadeus.AmadeusClient, error) {
+	client, err := amadeus.NewAmadeusClient(cfg)
 	if err != nil {
-		err := fmt.Sprintf("Error getting amadeus client: %s\n", err)
-		log.Println(err)
-		// don't return error as we want the app to still run if
-		// cannot connect to amadeus.
+		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
+		log.Println(errMsg)
 	}
+	return client, err
+}
 
-	c := controller.NewController(amadeusClient)
-
+func setupServers(basepath string, c *controller.Controller, wg *sync.WaitGroup) {
 	s := server.NewServer(c)
 	devS := server.NewServer(c)
-	devS.SetupRoutes() // Only setup API routes for the 8091 server
+	devS.SetupRoutes()
 
 	// Start UI Handler
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		setupServer(basepath, "ui", "/static/", "8080", s)
-	}()
+	go startServer(basepath, "ui", "/static/", "8080", s, wg)
 
 	// Start Dev UI Handler
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		setupServer(basepath, "ui-dev", "/devstatic/", "8091", devS)
-	}()
+	go startServer(basepath, "ui-dev", "/devstatic/", "8091", devS, wg)
+}
 
-	// Wait until all servers are done
-	wg.Wait()
+func startServer(basepath, uiType, route, port string, s *server.Server, wg *sync.WaitGroup) {
+	defer wg.Done()
+	setupServer(basepath, uiType, route, port, s)
 }
 
 // setupServer is used to setup a server on a requested port with a supplied ui
