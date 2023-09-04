@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/controller"
 	"github.com/matty271828/flight-prices/server"
@@ -42,16 +43,14 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		routes := []string{"/api"}
-		setupServer(basepath, "ui", "/static/", "8080", routes, s)
+		setupServer(basepath, "ui", "/static/", "8080", s)
 	}()
 
 	// Start Dev UI Handler
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		routes := []string{}
-		setupServer(basepath, "ui-dev", "/devstatic/", "8091", routes, s)
+		setupServer(basepath, "ui-dev", "/devstatic/", "8091", s)
 	}()
 
 	// Wait until all servers are done
@@ -59,27 +58,23 @@ func main() {
 }
 
 // setupServer is used to setup a server on a requested port with a supplied ui
-func setupServer(basepath, dir, staticRoute, port string, routes []string, s *server.Server) {
-	mux := http.NewServeMux()
+func setupServer(basepath, dir, staticRoute, port string, s *server.Server) {
+	r := mux.NewRouter()
 
-	if routes != nil {
-		for _, route := range routes {
-			mux.Handle(route+"/", http.StripPrefix(route, s))
-		}
-	}
-
-	// Serve index.html dynamically, this is for cachebusting
-	mux.HandleFunc("/", serveIndexFromDir(dir))
-
-	dirPath := filepath.Join(basepath, dir)
-	log.Printf("UI Directory Path: %s", dirPath)
+	// Serve the index.html dynamically for cachebusting
+	r.HandleFunc("/", serveIndexFromDir(dir))
 
 	// Serve other static files
+	dirPath := filepath.Join(basepath, dir)
 	fs := http.FileServer(http.Dir(dirPath))
-	mux.Handle(staticRoute, http.StripPrefix(staticRoute, fs))
+	r.PathPrefix(staticRoute).Handler(http.StripPrefix(staticRoute, fs))
+
+	// Mount the API router on a subrouter
+	apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/get-destinations/", s.HandleGetDestinations).Methods("GET")
 
 	log.Printf("HTTP Server initialized on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 // serveIndexFromDir is used to serve the index file of a ui directory

@@ -6,32 +6,28 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/matty271828/flight-prices/controller"
 )
 
 type Server struct {
 	ControllerManager controller.ControllerManager
+	Router            *mux.Router
 }
 
 func NewServer(c controller.ControllerManager) *Server {
-	return &Server{ControllerManager: c}
+	server := &Server{ControllerManager: c}
+	server.setupRoutes()
+	return server
 }
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	msg := fmt.Sprintf("Request received for path: %s\n", r.URL.Path)
-	log.Println(msg)
-
-	switch r.URL.Path {
-	case "/get-destinations/":
-		s.handleGetDestinations(w, r)
-	default:
-		http.NotFound(w, r)
-	}
+func (s *Server) setupRoutes() {
+	s.Router = mux.NewRouter()
+	s.Router.HandleFunc("/get-destinations/", s.HandleGetDestinations).Methods("GET")
 }
 
-func (s *Server) handleGetDestinations(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	origin := query.Get("origin")
+func (s *Server) HandleGetDestinations(w http.ResponseWriter, r *http.Request) {
+	origin := r.URL.Query().Get("origin")
 
 	if origin == "" {
 		http.Error(w, "origin query parameter is required", http.StatusBadRequest)
