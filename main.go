@@ -32,7 +32,8 @@ func main() {
 	if err != nil {
 		err := fmt.Sprintf("Error getting amadeus client: %s\n", err)
 		log.Println(err)
-		return
+		// don't return error as we want the app to still run if
+		// cannot connect to amadeus.
 	}
 
 	c := controller.NewController(amadeusClient)

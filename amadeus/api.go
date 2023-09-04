@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -23,6 +24,8 @@ func NewAmadeusClient() (*AmadeusClient, error) {
 
 	clientId := os.Getenv("AMADEUS_API_KEY")
 	clientSecret := os.Getenv("AMADEUS_API_SECRET")
+
+	fmt.Printf("ClientId: %s, ClientSecret: %s\n", clientId, clientSecret)
 
 	if clientId == "" || clientSecret == "" {
 		return nil, fmt.Errorf("Environment variables for Amadeus API not set")
@@ -64,15 +67,16 @@ func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating request: %v", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+a.Token)
+	log.Printf("Fetching flight info with token: %s", a.Token) // Debugging purposes.
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error performing request: %v", err)
 	}
 	defer resp.Body.Close()
 
@@ -81,7 +85,10 @@ func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 
 		var errorResponse AmadeusError
-		json.Unmarshal(bodyBytes, &errorResponse)
+		err = json.Unmarshal(bodyBytes, &errorResponse)
+		if err != nil {
+			return nil, fmt.Errorf("unexpected status: %d. Error parsing error response: %v. Body: %s", resp.StatusCode, err, string(bodyBytes))
+		}
 
 		// Construct a neat error message
 		var errorMsgs []string
@@ -101,13 +108,13 @@ func (a *AmadeusClient) GetFlightInfo(origin string) (*ApiResponse, error) {
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
 	var apiResponse ApiResponse
 	err = json.Unmarshal(data, &apiResponse)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling API response: %v", err)
 	}
 
 	return &apiResponse, nil
