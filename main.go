@@ -23,10 +23,8 @@ func main() {
 	// Setup environment variables and basepath
 	basepath := setupEnv()
 
-	cfg := loadConfig()
-
 	// Create Amadeus Client
-	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
+	amadeusClient, err := amadeus.NewAmadeusClient()
 	if err != nil {
 		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
 		// TODO: This is erroring on main - figure out why
@@ -52,13 +50,6 @@ func setupEnv() string {
 		log.Fatalf("Error determining executable path: %s\n", err)
 	}
 	return filepath.Dir(execPath)
-}
-
-func loadConfig() amadeus.Config {
-	return amadeus.Config{
-		ClientId:     os.Getenv("AMADEUS_API_KEY"),
-		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
-	}
 }
 
 func setupServers(basepath string, c *controller.Controller, wg *sync.WaitGroup) {
