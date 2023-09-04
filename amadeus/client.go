@@ -18,6 +18,7 @@ type Config struct {
 	ClientSecret string
 }
 
+// NewAmadeusClient initializes a new AmadeusClient with the provided config.
 func NewAmadeusClient(cfg Config) (*AmadeusClient, error) {
 	if cfg.ClientId == "" || cfg.ClientSecret == "" {
 		return nil, fmt.Errorf("Missing credentials for Amadeus API")
@@ -32,10 +33,13 @@ func NewAmadeusClient(cfg Config) (*AmadeusClient, error) {
 }
 
 func checkStatusCode(resp *http.Response) error {
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("Failed to read response body: %v", err)
+	}
 
 	var errorResponse AmadeusError
-	err := json.Unmarshal(bodyBytes, &errorResponse)
+	err = json.Unmarshal(bodyBytes, &errorResponse)
 	if err != nil {
 		return fmt.Errorf("Error parsing error response: %v. Body: %s", err, string(bodyBytes))
 	}
