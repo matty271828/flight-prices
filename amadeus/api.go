@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -71,7 +70,6 @@ func (a *AmadeusClient) FlightOffersSearch(origin string) (*ApiResponse, error) 
 	}
 
 	req.Header.Set("Authorization", "Bearer "+a.Token)
-	log.Printf("Fetching flight info with token: %s", a.Token) // Debugging purposes.
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -80,30 +78,8 @@ func (a *AmadeusClient) FlightOffersSearch(origin string) (*ApiResponse, error) 
 	}
 	defer resp.Body.Close()
 
-	// Check status code
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-
-		var errorResponse AmadeusError
-		err = json.Unmarshal(bodyBytes, &errorResponse)
-		if err != nil {
-			return nil, fmt.Errorf("unexpected status: %d. Error parsing error response: %v. Body: %s", resp.StatusCode, err, string(bodyBytes))
-		}
-
-		// Construct a neat error message
-		var errorMsgs []string
-		for _, errDetail := range errorResponse.Errors {
-			errorMsg := fmt.Sprintf(
-				"Code: %d, Title: %s, Detail: %s, Status: %d",
-				errDetail.Code,
-				errDetail.Title,
-				errDetail.Detail,
-				errDetail.Status,
-			)
-			errorMsgs = append(errorMsgs, errorMsg)
-		}
-
-		return nil, fmt.Errorf("unexpected status: %d. Errors: %s", resp.StatusCode, strings.Join(errorMsgs, " | "))
+	if resp.StatusCode != http.StatusOK && checkStatusCode(resp) != nil {
+		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
@@ -118,4 +94,28 @@ func (a *AmadeusClient) FlightOffersSearch(origin string) (*ApiResponse, error) 
 	}
 
 	return &apiResponse, nil
+}
+
+func checkStatusCode(resp *http.Response) error {
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
+	var errorResponse AmadeusError
+	err := json.Unmarshal(bodyBytes, &errorResponse)
+	if err != nil {
+		return fmt.Errorf("Error parsing error response: %v. Body: %s", err, string(bodyBytes))
+	}
+
+	// Construct a neat error message
+	var errorMsgs []string
+	for _, errDetail := range errorResponse.Errors {
+		errorMsg := fmt.Sprintf(
+			"Code: %d, Title: %s, Detail: %s, Status: %d",
+			errDetail.Code,
+			errDetail.Title,
+			errDetail.Detail,
+			errDetail.Status,
+		)
+		errorMsgs = append(errorMsgs, errorMsg)
+	}
+	return fmt.Errorf("Errors: %s", strings.Join(errorMsgs, " | "))
 }
