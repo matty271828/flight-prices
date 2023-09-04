@@ -29,6 +29,7 @@ func main() {
 	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
 	if err != nil {
 		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
+		// TODO: This is erroring on main - figure out why
 		log.Println(errMsg)
 	}
 
