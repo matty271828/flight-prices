@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -24,12 +25,33 @@ type Server struct {
 	Port              string
 }
 
-func NewServer(c controller.ControllerManager) *Server {
+func NewServer(c controller.ControllerManager, basepath, uiType, route, port string, wg *sync.WaitGroup) (*Server, error) {
 	server := &Server{
 		ControllerManager: c,
 		Router:            mux.NewRouter(),
+		UIBasepath:        basepath,
+		UIType:            uiType,
+		Route:             route,
+		Port:              port,
 	}
-	return server
+
+	// Set up the API routes
+	server.SetupRoutes()
+
+	// Set up UI routes
+	if err := server.setupUIRoutes(); err != nil {
+		return nil, fmt.Errorf("Error setting up UI routes: %w", err)
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := server.setupServer(); err != nil {
+			log.Fatalf("Error setting up server on port %s: %v", port, err)
+		}
+	}()
+
+	return server, nil
 }
 
 // SetupRoutes is called when we want to include the API on an initialised server instance.
