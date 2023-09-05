@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -37,29 +38,46 @@ func (s *Server) SetupRoutes() {
 	apiRouter.HandleFunc("/get-destinations/", s.HandleGetDestinations).Methods("GET")
 }
 
-func (s *Server) Start(basepath, uiType, route, port string) {
+func (s *Server) Start(basepath, uiType, route, port string) error {
 	s.UIBasepath = basepath
 	s.UIType = uiType
 	s.Route = route
 	s.Port = port
 
-	s.setupUIRoutes()
-	s.setupServer()
-}
+	if err := s.setupUIRoutes(); err != nil {
+		return fmt.Errorf("Error setting up UI routes: %w", err)
+	}
 
-func (s *Server) setupUIRoutes() {
+	if err := s.setupServer(); err != nil {
+		return fmt.Errorf("Error setting up server: %w", err)
+	}
+
+	return nil
+}
+func (s *Server) setupUIRoutes() error {
 	// Serve the index.html dynamically for cachebusting
 	s.Router.HandleFunc("/", s.serveIndex())
 
 	// Serve other static files
 	dirPath := filepath.Join(s.UIBasepath, s.UIType)
+
+	// Check if dirPath exists or is accessible.
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		return fmt.Errorf("Directory %s does not exist", dirPath)
+	}
+
 	fs := http.FileServer(http.Dir(dirPath))
 	s.Router.PathPrefix(s.Route).Handler(http.StripPrefix(s.Route, fs))
+	return nil
 }
 
-func (s *Server) setupServer() {
+func (s *Server) setupServer() error {
 	log.Printf("HTTP Server initialized on port %s", s.Port)
-	log.Fatal(http.ListenAndServe(":"+s.Port, s.Router))
+	err := http.ListenAndServe(":"+s.Port, s.Router)
+	if err != nil {
+		return fmt.Errorf("Failed to start server on port %s: %w", s.Port, err)
+	}
+	return nil
 }
 
 func (s *Server) serveIndex() http.HandlerFunc {

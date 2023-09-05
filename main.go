@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -16,8 +17,10 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	// Setup environment variables and basepath
-	basepath := setupEnv()
+	basepath, err := setupEnv()
+	if err != nil {
+		log.Fatalf("Failed to set up environment: %v", err)
+	}
 
 	// Create Amadeus Client
 	amadeusClient, err := amadeus.NewAmadeusClient()
@@ -29,14 +32,16 @@ func main() {
 
 	c := controller.NewController(amadeusClient)
 
-	// Setup servers
-	setupServers(basepath, c, &wg)
+	err = setupServers(basepath, c, &wg)
+	if err != nil {
+		log.Fatalf("Failed to set up servers: %v", err)
+	}
 
 	// Wait until all servers are done
 	wg.Wait()
 }
 
-func setupEnv() string {
+func setupEnv() (string, error) {
 	// Attempt to load from .env file, if it exists
 	_ = godotenv.Load()
 
@@ -44,11 +49,15 @@ func setupEnv() string {
 	execPath, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Error determining executable path: %s\n", err)
+		return "", fmt.Errorf("Error determining executable path: %w", err)
 	}
-	return filepath.Dir(execPath)
+	return filepath.Dir(execPath), nil
 }
 
-func setupServers(basepath string, c controller.ControllerManager, wg *sync.WaitGroup) {
+func setupServers(basepath string, c controller.ControllerManager, wg *sync.WaitGroup) error {
+	// Use error channels to capture errors from goroutines
+	errCh := make(chan error, 2) // buffered channel to avoid potential deadlocks
+
 	// Init the first server
 	s := server.NewServer(c)
 	s.SetupRoutes()
@@ -57,7 +66,10 @@ func setupServers(basepath string, c controller.ControllerManager, wg *sync.Wait
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.Start(basepath, "ui", "/static/", "8080")
+		if err := s.Start(basepath, "ui", "/static/", "8080"); err != nil {
+			errCh <- fmt.Errorf("Failed to start main server: %w", err)
+			return
+		}
 	}()
 
 	// Init the dev server
@@ -68,6 +80,25 @@ func setupServers(basepath string, c controller.ControllerManager, wg *sync.Wait
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		devS.Start(basepath, "ui-dev", "/devstatic/", "8091")
+		if err := devS.Start(basepath, "ui-dev", "/devstatic/", "8091"); err != nil {
+			errCh <- fmt.Errorf("Failed to start dev server: %w", err)
+			return
+		}
 	}()
+
+	// Wait for goroutines to finish and close the error channel
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	// Collect any errors from the channel
+	var errs []string
+	for err := range errCh {
+		errs = append(errs, err.Error())
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf(strings.Join(errs, " | "))
+	}
+	return nil
 }
