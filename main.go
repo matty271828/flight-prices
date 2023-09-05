@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -30,9 +29,14 @@ func main() {
 
 	c := controller.NewController(amadeusClient)
 
-	err = setupServers(basepath, c, &wg)
-	if err != nil {
-		log.Fatalf("Failed to set up servers: %v", err)
+	// Initialize main server
+	if _, err = server.NewServer(c, basepath, "ui", "/static/", "8080", &wg); err != nil {
+		log.Fatalf("Failed to initialize main server: %v", err)
+	}
+
+	// Initialize dev server
+	if _, err = server.NewServer(c, basepath, "ui-dev", "/devstatic/", "8091", &wg); err != nil {
+		log.Fatalf("Failed to initialize dev server: %v", err)
 	}
 
 	// Wait until all servers are done
@@ -50,53 +54,4 @@ func setupEnv() (string, error) {
 		return "", fmt.Errorf("Error determining executable path: %w", err)
 	}
 	return filepath.Dir(execPath), nil
-}
-
-func setupServers(basepath string, c controller.ControllerManager, wg *sync.WaitGroup) error {
-	// Use error channels to capture errors from goroutines
-	errCh := make(chan error, 2) // buffered channel to avoid potential deadlocks
-
-	// Init the first server
-	s := server.NewServer(c)
-	s.SetupRoutes()
-
-	// Start UI Handler
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := s.Start(basepath, "ui", "/static/", "8080"); err != nil {
-			errCh <- fmt.Errorf("Failed to start main server: %w", err)
-			return
-		}
-	}()
-
-	// Init the dev server
-	devS := server.NewServer(c)
-	devS.SetupRoutes()
-
-	// Start Dev UI Handler
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := devS.Start(basepath, "ui-dev", "/devstatic/", "8091"); err != nil {
-			errCh <- fmt.Errorf("Failed to start dev server: %w", err)
-			return
-		}
-	}()
-
-	// Wait for goroutines to finish and close the error channel
-	go func() {
-		wg.Wait()
-		close(errCh)
-	}()
-
-	// Collect any errors from the channel
-	var errs []string
-	for err := range errCh {
-		errs = append(errs, err.Error())
-	}
-	if len(errs) > 0 {
-		return fmt.Errorf(strings.Join(errs, " | "))
-	}
-	return nil
 }
