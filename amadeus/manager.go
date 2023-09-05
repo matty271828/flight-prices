@@ -1,5 +1,5 @@
 package amadeus
 
 type AmadeusManager interface {
-	FlightOffersSearch(origin string) (*ApiResponse, error)
+	FlightInspirationSearch(origin string) (*ApiResponse, error)
 }

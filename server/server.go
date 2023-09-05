@@ -57,7 +57,7 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 // SetupRoutes is called when we want to include the API on an initialised server instance.
 func (s *Server) SetupRoutes() {
 	apiRouter := s.Router.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/get-destinations/", s.HandleGetDestinations).Methods("GET")
+	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
@@ -132,7 +132,7 @@ func generateHTML(filepath string) (string, error) {
 	return modifiedContent, nil
 }
 
-func (s *Server) HandleGetDestinations(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleFlightInspirationSearch(w http.ResponseWriter, r *http.Request) {
 	origin := r.URL.Query().Get("origin")
 
 	if origin == "" {
@@ -142,7 +142,7 @@ func (s *Server) HandleGetDestinations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := s.ControllerManager.FlightOffersSearch(origin)
+	data, err := s.ControllerManager.FlightInspirationSearch(origin)
 	if err != nil {
 		errorMsg := fmt.Sprintf("Error getting flight info for origin %s: %v", origin, err)
 		log.Println(errorMsg)
