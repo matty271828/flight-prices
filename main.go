@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/matty271828/flight-prices/amadeus"
@@ -16,34 +20,24 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	basepath, err := setupEnv()
-	if err != nil {
-		log.Fatalf("Failed to set up environment: %v", err)
-	}
+	// Setup environment variables and basepath
+	basepath := setupEnv()
+
+	cfg := loadConfig()
 
 	// Create Amadeus Client
-	amadeusClient, err := amadeus.NewAmadeusClient()
-	if err != nil {
-		log.Fatalf("Error initializing Amadeus client: %s\n", err)
-	}
+	amadeusClient, _ := setupAmadeusClient(cfg)
 
 	c := controller.NewController(amadeusClient)
 
-	// Initialize main server
-	if _, err = server.NewServer(c, basepath, "ui", "/static/", "8080", &wg); err != nil {
-		log.Fatalf("Failed to initialize main server: %v", err)
-	}
-
-	// Initialize dev server
-	if _, err = server.NewServer(c, basepath, "ui-dev", "/devstatic/", "8091", &wg); err != nil {
-		log.Fatalf("Failed to initialize dev server: %v", err)
-	}
+	// Setup servers
+	setupServers(basepath, c, &wg)
 
 	// Wait until all servers are done
 	wg.Wait()
 }
 
-func setupEnv() (string, error) {
+func setupEnv() string {
 	// Attempt to load from .env file, if it exists
 	_ = godotenv.Load()
 
@@ -51,7 +45,88 @@ func setupEnv() (string, error) {
 	execPath, err := os.Executable()
 	if err != nil {
 		log.Fatalf("Error determining executable path: %s\n", err)
-		return "", fmt.Errorf("Error determining executable path: %w", err)
 	}
-	return filepath.Dir(execPath), nil
+	return filepath.Dir(execPath)
+}
+
+func loadConfig() amadeus.Config {
+	return amadeus.Config{
+		ClientId:     os.Getenv("AMADEUS_API_KEY"),
+		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
+	}
+}
+
+func setupAmadeusClient(cfg amadeus.Config) (*amadeus.AmadeusClient, error) {
+	client, err := amadeus.NewAmadeusClient(cfg)
+	if err != nil {
+		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
+		log.Println(errMsg)
+	}
+	return client, err
+}
+
+func setupServers(basepath string, c *controller.Controller, wg *sync.WaitGroup) {
+	s := server.NewServer(c)
+	devS := server.NewServer(c)
+	devS.SetupRoutes()
+
+	// Start UI Handler
+	wg.Add(1)
+	go startServer(basepath, "ui", "/static/", "8080", s, wg)
+
+	// Start Dev UI Handler
+	wg.Add(1)
+	go startServer(basepath, "ui-dev", "/devstatic/", "8091", devS, wg)
+}
+
+func startServer(basepath, uiType, route, port string, s *server.Server, wg *sync.WaitGroup) {
+	defer wg.Done()
+	setupServer(basepath, uiType, route, port, s)
+}
+
+// setupServer is used to setup a server on a requested port with a supplied ui
+func setupServer(basepath, dir, staticRoute, port string, s *server.Server) {
+	r := s.Router
+
+	// Serve the index.html dynamically for cachebusting
+	r.HandleFunc("/", serveIndexFromDir(dir))
+
+	// Serve other static files
+	dirPath := filepath.Join(basepath, dir)
+	fs := http.FileServer(http.Dir(dirPath))
+	r.PathPrefix(staticRoute).Handler(http.StripPrefix(staticRoute, fs))
+
+	log.Printf("HTTP Server initialized on port %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+// serveIndexFromDir is used to serve the index file of a ui directory
+func serveIndexFromDir(dirPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+
+		modifiedContent, err := generateHTML(filepath.Join(dirPath, "index.html"))
+		if err != nil {
+			http.Error(w, "Failed to generate content", http.StatusInternalServerError)
+			return
+		}
+		w.Write([]byte(modifiedContent))
+	}
+}
+
+func generateHTML(filepath string) (string, error) {
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	timestamp := fmt.Sprintf("%d", time.Now().Unix())
+	// Add timestamps for cachebusting
+	modifiedContent := strings.ReplaceAll(string(content), "{{cssTimestamp}}", timestamp)
+	modifiedContent = strings.ReplaceAll(modifiedContent, "{{jsTimestamp}}", timestamp)
+
+	return modifiedContent, nil
 }
