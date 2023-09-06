@@ -32,6 +32,9 @@ else
     echo "SSL certificates found. Skipping Certbot setup."
 fi
 
+# source the local environment variables
+source .env
+
 #------------------------------- Build and transfer application files -------------------------
 # Step 1: Build the Linux binary
 echo "Building the Linux binary..."
@@ -48,6 +51,35 @@ if [ $? -ne 0 ]; then
     echo "Error stopping the service. Exiting."
     exit 1
 fi
+
+# Source the .env file
+source .env
+
+# Function to update and check the environment variable in the service file
+update_env_var() {
+    VAR_NAME="$1"
+    VAR_VALUE="$2"
+    
+    # Check and potentially update the environment variable on the remote server
+    ssh ${REMOTE_SERVER} "
+      # Ensure the variable is in the [Service] section
+      if grep -q 'Environment=\"${VAR_NAME}=' /etc/systemd/system/flight-prices.service; then
+        # If it exists but is different, then replace
+        if ! grep -q 'Environment=\"${VAR_NAME}=${VAR_VALUE}\"' /etc/systemd/system/flight-prices.service; then
+          sed -i '/Environment=\"${VAR_NAME}=/c\Environment=\"${VAR_NAME}=${VAR_VALUE}\"' /etc/systemd/system/flight-prices.service
+          echo "${VAR_NAME} updated"
+        fi
+      else
+        # If it doesn't exist, insert it after [Service]
+        sed -i '/\[Service\]/a Environment=\"${VAR_NAME}=${VAR_VALUE}\"' /etc/systemd/system/flight-prices.service
+        echo "${VAR_NAME} added"
+      fi
+    "
+}
+
+# Update the environment variables
+update_env_var "AMADEUS_API_KEY" "$AMADEUS_API_KEY"
+update_env_var "AMADEUS_API_SECRET" "$AMADEUS_API_SECRET"
 
 # Step 3: Push the binary to the remote server
 echo "Transferring the binary..."
@@ -112,11 +144,10 @@ fi
 
 # Step 10: SSH into the remote server and start the service
 echo "Starting the remote service..."
-ssh ${REMOTE_SERVER} "sudo systemctl start flight-prices"
+ssh ${REMOTE_SERVER} "systemctl daemon-reload && sudo systemctl start flight-prices"
 if [ $? -ne 0 ]; then
     echo "Error starting the service. Exiting."
     exit 1
 fi
 
 echo "Deployment complete!"
-
