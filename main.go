@@ -28,7 +28,8 @@ func main() {
 	// Create Amadeus Client
 	amadeusClient, err := amadeus.NewAmadeusClient(cfg)
 	if err != nil {
-		log.Fatalf("Error initializing Amadeus client: %s\n", err)
+		errMsg := fmt.Sprintf("Error getting amadeus client: %s\n", err)
+		log.Println(errMsg)
 	}
 
 	c := controller.NewController(amadeusClient)
