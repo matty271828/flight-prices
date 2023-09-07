@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -21,9 +20,6 @@ func GetAuthToken(clientID string, clientSecret string) (string, error) {
 	data.Set("grant_type", "client_credentials")
 	data.Set("client_id", clientID)
 	data.Set("client_secret", clientSecret)
-
-	log.Println(clientID)
-	log.Println(clientSecret)
 
 	req, err := http.NewRequest(http.MethodPost, "https://test.api.amadeus.com/v1/security/oauth2/token", strings.NewReader(data.Encode()))
 	if err != nil {
