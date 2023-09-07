@@ -16,6 +16,6 @@ func (c *Controller) FlightInspirationSearch(origin string) (*amadeus.ApiRespons
 	return c.AmadeusManager.FlightInspirationSearch(origin)
 }
 
-func (c *Controller) FlightOffersSearch(origin, destination, departureDate, timeRange string) (*amadeus.ApiResponse, error) {
-	return c.AmadeusManager.FlightOffersSearch(origin, destination, departureDate, timeRange)
+func (c *Controller) FlightOffersSearch(origin, destination, departureDate, adults string) (*amadeus.ApiResponse, error) {
+	return c.AmadeusManager.FlightOffersSearch(origin, destination, departureDate, adults)
 }

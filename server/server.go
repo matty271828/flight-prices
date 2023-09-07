@@ -58,7 +58,7 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 func (s *Server) SetupRoutes() {
 	apiRouter := s.Router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
-	apiRouter.HandleFunc("/flight-offers/", s.HandleFlightInspirationSearch).Methods("POST")
+	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightInspirationSearch).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
@@ -169,7 +169,7 @@ func (s *Server) HandleFlightInspirationSearch(w http.ResponseWriter, r *http.Re
 }
 
 func (s *Server) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request) {
-	requiredParams := []string{"origin", "destination", "departureDate", "timeRange"}
+	requiredParams := []string{"origin", "destination", "departureDate", "adults"}
 	params := make(map[string]string)
 
 	// Loop through the required parameters and check if they are present
