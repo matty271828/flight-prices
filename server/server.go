@@ -188,7 +188,7 @@ func (s *Server) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request
 		params["origin"],
 		params["destination"],
 		params["departureDate"],
-		params["timeRange"],
+		params["adults"],
 	)
 	if err != nil {
 		errorMsg := fmt.Sprintf("Error getting flight offers for origin %s: %v", params["origin"], err)
