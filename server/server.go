@@ -58,6 +58,7 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 func (s *Server) SetupRoutes() {
 	apiRouter := s.Router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
+	apiRouter.HandleFunc("/flight-offers/", s.HandleFlightInspirationSearch).Methods("POST")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
@@ -162,6 +163,52 @@ func (s *Server) HandleFlightInspirationSearch(w http.ResponseWriter, r *http.Re
 	_, err = w.Write(jsonData)
 	if err != nil {
 		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", origin, err)
+		log.Println(errorMsg)
+		return
+	}
+}
+
+func (s *Server) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request) {
+	requiredParams := []string{"origin", "destination", "departureDate", "timeRange"}
+	params := make(map[string]string)
+
+	// Loop through the required parameters and check if they are present
+	for _, param := range requiredParams {
+		value := r.URL.Query().Get(param)
+		if value == "" {
+			errorMsg := fmt.Sprintf("Error: %s query parameter is required", param)
+			log.Println(errorMsg)
+			http.Error(w, errorMsg, http.StatusBadRequest)
+			return
+		}
+		params[param] = value
+	}
+
+	data, err := s.ControllerManager.FlightOffersSearch(
+		params["origin"],
+		params["destination"],
+		params["departureDate"],
+		params["timeRange"],
+	)
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error getting flight offers for origin %s: %v", params["origin"], err)
+		log.Println(errorMsg)
+		http.Error(w, errorMsg, http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error marshalling data for origin %s: %v", params["origin"], err)
+		log.Println(errorMsg)
+		http.Error(w, errorMsg, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(jsonData)
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", params["origin"], err)
 		log.Println(errorMsg)
 		return
 	}
