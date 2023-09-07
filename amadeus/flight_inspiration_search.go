@@ -7,15 +7,6 @@ import (
 	"net/http"
 )
 
-type FlightDestination struct {
-	Type          string `json:"type"`
-	Origin        string `json:"origin"`
-	Destination   string `json:"destination"`
-	DepartureDate string `json:"departureDate"`
-	Price         Price  `json:"price"`
-	Links         Links  `json:"links"`
-}
-
 func (a *AmadeusClient) FlightInspirationSearch(origin string) (*ApiResponse, error) {
 	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", origin)
 

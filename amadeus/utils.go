@@ -4,22 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 )
 
 func loadConfig() Config {
-	clientId := os.Getenv("AMADEUS_API_KEY")
-	clientSecret := os.Getenv("AMADEUS_API_SECRET")
-
-	log.Println("ClientId:", clientId)
-	log.Println("ClientSecret:", clientSecret)
-
 	return Config{
-		ClientId:     clientId,
-		ClientSecret: clientSecret,
+		ClientId:     os.Getenv("AMADEUS_API_KEY"),
+		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
 	}
 }
 
