@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func loadConfig() Config {
+func LoadConfig() Config {
 	return Config{
 		ClientId:     os.Getenv("AMADEUS_API_KEY"),
 		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),

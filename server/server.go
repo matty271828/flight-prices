@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/controller"
 )
 
@@ -57,6 +58,13 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 // SetupRoutes is called when we want to include the API on an initialised server instance.
 func (s *Server) SetupRoutes() {
 	apiRouter := s.Router.PathPrefix("/api").Subrouter()
+
+	// Create a chain of middlewares to apply
+	amadeusConfig := amadeus.LoadConfig()
+	middlewares := Chain(amadeus.EnsureValidTokenMiddleware(amadeusConfig.ClientId, amadeusConfig.ClientSecret))
+
+	apiRouter.Use(middlewares)
+
 	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
 	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightInspirationSearch).Methods("GET")
 }

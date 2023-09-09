@@ -7,12 +7,23 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
+
+	"github.com/gorilla/mux"
+)
+
+var (
+	mu           sync.Mutex
+	currentToken string
+	tokenExpiry  time.Time
 )
 
 type AuthResponse struct {
-	Type      string `json:"type"`
-	Token     string `json:"access_token"`
-	ExpiresIn int    `json:"expires_in"`
+	Type      string    `json:"type"`
+	Token     string    `json:"access_token"`
+	ExpiresIn int       `json:"expires_in"`
+	Expiry    time.Time `json:"-"` // This field is for internal use to compute token expiry
 }
 
 func GetAuthToken(clientID string, clientSecret string) (string, error) {
@@ -54,5 +65,32 @@ func GetAuthToken(clientID string, clientSecret string) (string, error) {
 		return "", fmt.Errorf("received empty token. Full response: %s", string(body))
 	}
 
+	authResponse.Expiry = time.Now().Add(time.Second * time.Duration(authResponse.ExpiresIn))
+
+	mu.Lock()
+	currentToken = authResponse.Token
+	tokenExpiry = authResponse.Expiry
+	mu.Unlock()
+
 	return authResponse.Token, nil
+}
+
+func EnsureValidTokenMiddleware(clientID string, clientSecret string) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			tokenExpired := time.Now().After(tokenExpiry)
+			mu.Unlock()
+
+			if tokenExpired {
+				_, err := GetAuthToken(clientID, clientSecret)
+				if err != nil {
+					http.Error(w, "Authentication failed", http.StatusUnauthorized)
+					return
+				}
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }

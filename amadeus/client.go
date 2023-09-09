@@ -16,7 +16,7 @@ type Config struct {
 
 // NewAmadeusClient initializes a new AmadeusClient with the provided config.
 func NewAmadeusClient() (*AmadeusClient, error) {
-	cfg := loadConfig()
+	cfg := LoadConfig()
 
 	if cfg.ClientId == "" || cfg.ClientSecret == "" {
 		return nil, fmt.Errorf("Missing credentials for Amadeus API")
