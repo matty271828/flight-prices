@@ -77,6 +77,8 @@ update_env_var() {
 # Update the environment variables
 update_env_var "AMADEUS_API_TEST_KEY" "$AMADEUS_API_TEST_KEY"
 update_env_var "AMADEUS_API_TEST_SECRET" "$AMADEUS_API_TEST_SECRET"
+update_env_var "AMADEUS_API_PROD_KEY" "$AMADEUS_API_PROD_KEY"
+update_env_var "AMADEUS_API_PROD_SECRET" "$AMADEUS_API_PROD_SECRET"
 
 # Update feature flags
 update_env_var "USE_TEST_API" "$USE_TEST_API"
