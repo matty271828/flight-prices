@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/amadeus/airportsearch"
 	"github.com/matty271828/flight-prices/amadeus/flightinspiration"
 	"github.com/matty271828/flight-prices/amadeus/flightoffers"
 )
@@ -11,5 +11,5 @@ type ControllerManager interface {
 
 	FlightOffersSearch(oorigin, destination, departureDate, adults string) (*flightoffers.FOSResponse, error)
 
-	AirportSearch(keyword string) (*amadeus.ApiResponse, error)
+	AirportSearch(keyword string) (*airportsearch.AirportSearchResponse, error)
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/amadeus/airportsearch"
 	"github.com/matty271828/flight-prices/amadeus/flightinspiration"
 	"github.com/matty271828/flight-prices/amadeus/flightoffers"
 )
@@ -22,6 +23,6 @@ func (c *Controller) FlightOffersSearch(origin, destination, departureDate, adul
 	return c.AmadeusManager.FlightOffersSearch(origin, destination, departureDate, adults)
 }
 
-func (c *Controller) AirportSearch(name string) (*amadeus.ApiResponse, error) {
+func (c *Controller) AirportSearch(name string) (*airportsearch.AirportSearchResponse, error) {
 	return c.AmadeusManager.AirportSearch(name)
 }

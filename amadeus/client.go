@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/matty271828/flight-prices/amadeus/airportsearch"
 	"github.com/matty271828/flight-prices/amadeus/flightinspiration"
 	"github.com/matty271828/flight-prices/amadeus/flightoffers"
 )
@@ -91,4 +92,31 @@ func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, a
 	}
 
 	return flightoffers.ParseFOSResponse(resp)
+}
+
+// AirportSearch finds airports and cities that match a specific word or string of letters.
+func (a *AmadeusClient) AirportSearch(keyword string) (*airportsearch.AirportSearchResponse, error) {
+	requestURL := fmt.Sprintf("%s/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=%s", a.BaseURL, keyword)
+
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+a.Token)
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error performing request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && checkStatusCode(resp) != nil {
+		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
+	}
+	return airportsearch.ParseAirportSearchResponse(resp)
 }
