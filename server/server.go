@@ -67,6 +67,7 @@ func (s *Server) SetupRoutes() {
 
 	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
 	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightInspirationSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-airport/", s.HandleAirportSearch).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
@@ -217,6 +218,41 @@ func (s *Server) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request
 	_, err = w.Write(jsonData)
 	if err != nil {
 		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", params["origin"], err)
+		log.Println(errorMsg)
+		return
+	}
+}
+
+func (s *Server) HandleAirportSearch(w http.ResponseWriter, r *http.Request) {
+	keyword := r.URL.Query().Get("keyword")
+
+	if keyword == "" {
+		errorMsg := "Error: keyword query parameter is required"
+		log.Println(errorMsg)
+		http.Error(w, errorMsg, http.StatusBadRequest)
+		return
+	}
+
+	data, err := s.ControllerManager.AirportSearch(keyword)
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error getting airport info for keyword %s: %v", keyword, err)
+		log.Println(errorMsg)
+		http.Error(w, errorMsg, http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error marshalling data for origin %s: %v", keyword, err)
+		log.Println(errorMsg)
+		http.Error(w, errorMsg, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(jsonData)
+	if err != nil {
+		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", keyword, err)
 		log.Println(errorMsg)
 		return
 	}

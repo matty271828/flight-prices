@@ -12,10 +12,14 @@ func NewController(a amadeus.AmadeusManager) *Controller {
 	return &Controller{AmadeusManager: a}
 }
 
-func (c *Controller) FlightInspirationSearch(origin string) (*amadeus.ApiResponse, error) {
+func (c *Controller) FlightInspirationSearch(origin string) (*amadeus.FISResponse, error) {
 	return c.AmadeusManager.FlightInspirationSearch(origin)
 }
 
 func (c *Controller) FlightOffersSearch(origin, destination, departureDate, adults string) (*amadeus.ApiResponse, error) {
 	return c.AmadeusManager.FlightOffersSearch(origin, destination, departureDate, adults)
+}
+
+func (c *Controller) AirportSearch(name string) (*amadeus.ApiResponse, error) {
+	return c.AmadeusManager.AirportSearch(name)
 }

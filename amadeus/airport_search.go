@@ -4,18 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
 
-func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, adults string) (*ApiResponse, error) {
-	requestURL := fmt.Sprintf(
-		"%s/v1/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%s&max=20",
-		a.BaseURL, origin, destination, departureDate, adults)
-
-	// Log the request URL
-	log.Printf("Sending request to URL: %s", requestURL)
+// AirportSearch finds airports and cities that match a specific word or string of letters.
+func (a *AmadeusClient) AirportSearch(keyword string) (*ApiResponse, error) {
+	requestURL := fmt.Sprintf("%s/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=%s", a.BaseURL, keyword)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
