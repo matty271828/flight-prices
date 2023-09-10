@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/amadeus/flightinspiration"
 )
 
 type Controller struct {
@@ -12,7 +13,7 @@ func NewController(a amadeus.AmadeusManager) *Controller {
 	return &Controller{AmadeusManager: a}
 }
 
-func (c *Controller) FlightInspirationSearch(origin string) (*amadeus.FISResponse, error) {
+func (c *Controller) FlightInspirationSearch(origin string) (*flightinspiration.FISResponse, error) {
 	return c.AmadeusManager.FlightInspirationSearch(origin)
 }
 
