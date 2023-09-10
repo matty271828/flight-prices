@@ -81,7 +81,7 @@ update_env_var "AMADEUS_API_PROD_KEY" "$AMADEUS_API_PROD_KEY"
 update_env_var "AMADEUS_API_PROD_SECRET" "$AMADEUS_API_PROD_SECRET"
 
 # Update feature flags
-update_env_var "USE_TEST_API" "$USE_TEST_API"
+update_env_var "USE_PROD_API" "$USE_PROD_API"
 
 # Step 3: Push the binary to the remote server
 echo "Transferring the binary..."
