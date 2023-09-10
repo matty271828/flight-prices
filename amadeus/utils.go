@@ -9,10 +9,25 @@ import (
 	"strings"
 )
 
-func LoadConfig() Config {
-	return Config{
-		ClientId:     os.Getenv("AMADEUS_API_KEY"),
-		ClientSecret: os.Getenv("AMADEUS_API_SECRET"),
+// APIKeys struct to hold amadeus api keys
+type APIKeys struct {
+	ClientId     string
+	ClientSecret string
+}
+
+func GetAPIKeys() APIKeys {
+	// Initially assume using test keys
+	clientId := os.Getenv("AMADEUS_API_TEST_KEY")
+	clientSecret := os.Getenv("AMADEUS_API_TEST_SECRET")
+
+	if os.Getenv("USE_PROD_API") == "true" {
+		clientId = os.Getenv("AMADEUS_API_KEY")
+		clientSecret = os.Getenv("AMADEUS_API_SECRET")
+	}
+
+	return APIKeys{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
 	}
 }
 

@@ -60,7 +60,7 @@ func (s *Server) SetupRoutes() {
 	apiRouter := s.Router.PathPrefix("/api").Subrouter()
 
 	// Create a chain of middlewares to apply
-	amadeusConfig := amadeus.LoadConfig()
+	amadeusConfig := amadeus.GetAPIKeys()
 	middlewares := Chain(amadeus.EnsureValidTokenMiddleware(amadeusConfig.ClientId, amadeusConfig.ClientSecret))
 
 	apiRouter.Use(middlewares)

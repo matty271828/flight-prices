@@ -52,9 +52,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Source the .env file
-source .env
-
 # Function to update and check the environment variable in the service file
 update_env_var() {
     VAR_NAME="$1"
@@ -78,8 +75,11 @@ update_env_var() {
 }
 
 # Update the environment variables
-update_env_var "AMADEUS_API_KEY" "$AMADEUS_API_KEY"
-update_env_var "AMADEUS_API_SECRET" "$AMADEUS_API_SECRET"
+update_env_var "AMADEUS_API_TEST_KEY" "$AMADEUS_API_TEST_KEY"
+update_env_var "AMADEUS_API_TEST_SECRET" "$AMADEUS_API_TEST_SECRET"
+
+# Update feature flags
+update_env_var "USE_TEST_API" "$USE_TEST_API"
 
 # Step 3: Push the binary to the remote server
 echo "Transferring the binary..."

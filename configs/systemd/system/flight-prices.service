@@ -26,7 +26,7 @@ User=root
 WorkingDirectory=/root/flight-prices
 ExecStart=/root/flight-prices/flight-prices-binary
 Restart=always  # This will ensure the app restarts if it crashes
-Environment="AMADEUS_API_KEY=<AMADEUS_API_KEY>" "AMADEUS_API_SECRET=<AMADEUS_API_SECRET>"
+Environment="AMADEUS_API_TEST_KEY=<AMADEUS_API_TEST_KEY>" "AMADEUS_API_TEST_SECRET=<AMADEUS_API_TEST_SECRET>"
 StandardOutput=append:/root/flight-prices/logfile.log
 StandardError=append:/root/flight-prices/error.log  
 
