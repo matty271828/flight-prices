@@ -5,11 +5,14 @@ import (
 )
 
 type AmadeusClient struct {
-	Token string
+	BaseURL string
+	Token   string
 }
 
 // NewAmadeusClient initializes a new AmadeusClient with the provided config.
 func NewAmadeusClient() (*AmadeusClient, error) {
+	baseURL := GetBaseURL()
+
 	cfg := GetAPIKeys()
 
 	if cfg.ClientId == "" || cfg.ClientSecret == "" {
@@ -21,5 +24,5 @@ func NewAmadeusClient() (*AmadeusClient, error) {
 		return nil, fmt.Errorf("Error fetching Amadeus token: %w", err)
 	}
 
-	return &AmadeusClient{Token: token}, nil
+	return &AmadeusClient{BaseURL: baseURL, Token: token}, nil
 }

@@ -9,8 +9,8 @@ import (
 
 func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, adults string) (*ApiResponse, error) {
 	requestURL := fmt.Sprintf(
-		"https://test.api.amadeus.com/v1/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%s&max=20",
-		origin, destination, departureDate, adults)
+		"%s/v1/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%s&max=20",
+		a.BaseURL, origin, destination, departureDate, adults)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {

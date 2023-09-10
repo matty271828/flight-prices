@@ -21,14 +21,22 @@ func GetAPIKeys() APIKeys {
 	clientSecret := os.Getenv("AMADEUS_API_TEST_SECRET")
 
 	if os.Getenv("USE_PROD_API") == "true" {
-		clientId = os.Getenv("AMADEUS_API_KEY")
-		clientSecret = os.Getenv("AMADEUS_API_SECRET")
+		clientId = os.Getenv("AMADEUS_API_PROD_KEY")
+		clientSecret = os.Getenv("AMADEUS_API_PROD_SECRET")
 	}
 
 	return APIKeys{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
 	}
+}
+
+// GetBaseURL is used to switch the client between test and prod calls
+func GetBaseURL() string {
+	if os.Getenv("USE_PROD_API") == "true" {
+		return "https://api.amadeus.com"
+	}
+	return "https://test.api.amadeus.com"
 }
 
 func checkStatusCode(resp *http.Response) error {

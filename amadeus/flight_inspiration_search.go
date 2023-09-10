@@ -8,7 +8,7 @@ import (
 )
 
 func (a *AmadeusClient) FlightInspirationSearch(origin string) (*ApiResponse, error) {
-	requestURL := fmt.Sprintf("https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", origin)
+	requestURL := fmt.Sprintf("%s/v1/shopping/flight-destinations?origin=%s&oneWay=true&nonStop=true", a.BaseURL, origin)
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {

@@ -32,7 +32,9 @@ func GetAuthToken(clientID string, clientSecret string) (string, error) {
 	data.Set("client_id", clientID)
 	data.Set("client_secret", clientSecret)
 
-	req, err := http.NewRequest(http.MethodPost, "https://test.api.amadeus.com/v1/security/oauth2/token", strings.NewReader(data.Encode()))
+	baseURL := GetBaseURL()
+	tokenEndpoint := fmt.Sprintf("%s/v1/security/oauth2/token", baseURL)
+	req, err := http.NewRequest(http.MethodPost, tokenEndpoint, strings.NewReader(data.Encode()))
 	if err != nil {
 		return "", fmt.Errorf("error creating token request: %v", err)
 	}
