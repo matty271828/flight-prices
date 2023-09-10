@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/matty271828/flight-prices/amadeus/flightinspiration"
+	"github.com/matty271828/flight-prices/amadeus/flightoffers"
 )
 
 type AmadeusClient struct {
@@ -56,4 +57,38 @@ func (a *AmadeusClient) FlightInspirationSearch(origin string) (*flightinspirati
 	}
 
 	return flightinspiration.ParseFISResponse(resp)
+}
+
+func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, adults string) (*flightoffers.FOSResponse, error) {
+	requestURL := fmt.Sprintf(
+		"%s/v2/shopping/flight-offers?originLocationCode=%s&destinationLocationCode=%s&departureDate=%s&adults=%s&max=20",
+		a.BaseURL, origin, destination, departureDate, adults)
+
+	// Create the HTTP request
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %v", err)
+	}
+
+	// Set the required headers
+	req.Header.Set("Authorization", "Bearer "+a.Token)
+
+	// Initialize the HTTP client with a timeout
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
+	// Execute the HTTP request
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error performing request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check the status code of the response
+	if resp.StatusCode != http.StatusOK && checkStatusCode(resp) != nil {
+		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
+	}
+
+	return flightoffers.ParseFOSResponse(resp)
 }
