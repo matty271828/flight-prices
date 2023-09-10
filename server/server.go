@@ -66,7 +66,7 @@ func (s *Server) SetupRoutes() {
 	apiRouter.Use(middlewares)
 
 	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
-	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightInspirationSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightOffersSearch).Methods("GET")
 	apiRouter.HandleFunc("/get-airport/", s.HandleAirportSearch).Methods("GET")
 }
 
