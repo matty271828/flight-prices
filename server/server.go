@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,26 +13,33 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/matty271828/flight-prices/amadeus"
+	"github.com/matty271828/flight-prices/amadeus/handlers"
 	"github.com/matty271828/flight-prices/controller"
 )
 
 type Server struct {
-	ControllerManager controller.ControllerManager
-	Router            *mux.Router
-	UIBasepath        string
-	UIType            string
-	Route             string
-	Port              string
+	ControllerManager    controller.ControllerManager
+	AirportSearchHandler *handlers.AirportSearchHandler
+	FISHandler           *handlers.FISHandler
+	FOSHandler           *handlers.FOSHandler
+	Router               *mux.Router
+	UIBasepath           string
+	UIType               string
+	Route                string
+	Port                 string
 }
 
 func NewServer(c controller.ControllerManager, basepath, uiType, route, port string, wg *sync.WaitGroup) (*Server, error) {
 	server := &Server{
-		ControllerManager: c,
-		Router:            mux.NewRouter(),
-		UIBasepath:        basepath,
-		UIType:            uiType,
-		Route:             route,
-		Port:              port,
+		ControllerManager:    c,
+		AirportSearchHandler: handlers.NewAirportSearchHandler(c),
+		FISHandler:           handlers.NewFISHandler(c),
+		FOSHandler:           handlers.NewFOSHandler(c),
+		Router:               mux.NewRouter(),
+		UIBasepath:           basepath,
+		UIType:               uiType,
+		Route:                route,
+		Port:                 port,
 	}
 
 	// Set up the API routes
@@ -65,9 +71,9 @@ func (s *Server) SetupRoutes() {
 
 	apiRouter.Use(middlewares)
 
-	apiRouter.HandleFunc("/get-destinations/", s.HandleFlightInspirationSearch).Methods("GET")
-	apiRouter.HandleFunc("/get-flight-offers/", s.HandleFlightOffersSearch).Methods("GET")
-	apiRouter.HandleFunc("/get-airport/", s.HandleAirportSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-destinations/", s.FISHandler.HandleFlightInspirationSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-flight-offers/", s.FOSHandler.HandleFlightOffersSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-airport/", s.AirportSearchHandler.HandleAirportSearch).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
@@ -140,120 +146,4 @@ func generateHTML(filepath string) (string, error) {
 	modifiedContent = strings.ReplaceAll(modifiedContent, "{{jsTimestamp}}", timestamp)
 
 	return modifiedContent, nil
-}
-
-func (s *Server) HandleFlightInspirationSearch(w http.ResponseWriter, r *http.Request) {
-	origin := r.URL.Query().Get("origin")
-
-	if origin == "" {
-		errorMsg := "Error: origin query parameter is required"
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusBadRequest)
-		return
-	}
-
-	data, err := s.ControllerManager.FlightInspirationSearch(origin)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error getting flight info for origin %s: %v", origin, err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	jsonData, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error marshalling data for origin %s: %v", origin, err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jsonData)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", origin, err)
-		log.Println(errorMsg)
-		return
-	}
-}
-
-func (s *Server) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request) {
-	requiredParams := []string{"origin", "destination", "departureDate", "adults"}
-	params := make(map[string]string)
-
-	// Loop through the required parameters and check if they are present
-	for _, param := range requiredParams {
-		value := r.URL.Query().Get(param)
-		if value == "" {
-			errorMsg := fmt.Sprintf("Error: %s query parameter is required", param)
-			log.Println(errorMsg)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-		params[param] = value
-	}
-
-	data, err := s.ControllerManager.FlightOffersSearch(
-		params["origin"],
-		params["destination"],
-		params["departureDate"],
-		params["adults"],
-	)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error getting flight offers for origin %s: %v", params["origin"], err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	jsonData, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error marshalling data for origin %s: %v", params["origin"], err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jsonData)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", params["origin"], err)
-		log.Println(errorMsg)
-		return
-	}
-}
-
-func (s *Server) HandleAirportSearch(w http.ResponseWriter, r *http.Request) {
-	keyword := r.URL.Query().Get("keyword")
-
-	if keyword == "" {
-		errorMsg := "Error: keyword query parameter is required"
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusBadRequest)
-		return
-	}
-
-	data, err := s.ControllerManager.AirportSearch(keyword)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error getting airport info for keyword %s: %v", keyword, err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	jsonData, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error marshalling data for origin %s: %v", keyword, err)
-		log.Println(errorMsg)
-		http.Error(w, errorMsg, http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jsonData)
-	if err != nil {
-		errorMsg := fmt.Sprintf("Error writing response for origin %s: %v", keyword, err)
-		log.Println(errorMsg)
-		return
-	}
 }
