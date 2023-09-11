@@ -17,7 +17,10 @@ func NewAirportSearchHandler(cm controller.ControllerManager) *AirportSearchHand
 	return &AirportSearchHandler{ControllerManager: cm}
 }
 
-func (h *AirportSearchHandler) HandleAirportSearch(w http.ResponseWriter, r *http.Request) {
+// Ensure AirportSearchHandler implements the RequestHandler interface.
+var _ RequestHandler = (*AirportSearchHandler)(nil)
+
+func (h *AirportSearchHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	keyword := r.URL.Query().Get("keyword")
 
 	if keyword == "" {

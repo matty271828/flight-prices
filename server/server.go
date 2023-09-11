@@ -18,28 +18,28 @@ import (
 )
 
 type Server struct {
-	ControllerManager    controller.ControllerManager
-	AirportSearchHandler *handlers.AirportSearchHandler
-	FISHandler           *handlers.FISHandler
-	FOSHandler           *handlers.FOSHandler
-	Router               *mux.Router
-	UIBasepath           string
-	UIType               string
-	Route                string
-	Port                 string
+	ControllerManager controller.ControllerManager
+	Handlers          map[string]handlers.RequestHandler
+	Router            *mux.Router
+	UIBasepath        string
+	UIType            string
+	Route             string
+	Port              string
 }
 
 func NewServer(c controller.ControllerManager, basepath, uiType, route, port string, wg *sync.WaitGroup) (*Server, error) {
 	server := &Server{
-		ControllerManager:    c,
-		AirportSearchHandler: handlers.NewAirportSearchHandler(c),
-		FISHandler:           handlers.NewFISHandler(c),
-		FOSHandler:           handlers.NewFOSHandler(c),
-		Router:               mux.NewRouter(),
-		UIBasepath:           basepath,
-		UIType:               uiType,
-		Route:                route,
-		Port:                 port,
+		ControllerManager: c,
+		Handlers: map[string]handlers.RequestHandler{
+			"airportSearch":     handlers.NewAirportSearchHandler(c),
+			"flightInspiration": handlers.NewFISHandler(c),
+			"flightOffers":      handlers.NewFOSHandler(c),
+		},
+		Router:     mux.NewRouter(),
+		UIBasepath: basepath,
+		UIType:     uiType,
+		Route:      route,
+		Port:       port,
 	}
 
 	// Set up the API routes
@@ -71,9 +71,9 @@ func (s *Server) SetupRoutes() {
 
 	apiRouter.Use(middlewares)
 
-	apiRouter.HandleFunc("/get-destinations/", s.FISHandler.HandleFlightInspirationSearch).Methods("GET")
-	apiRouter.HandleFunc("/get-flight-offers/", s.FOSHandler.HandleFlightOffersSearch).Methods("GET")
-	apiRouter.HandleFunc("/get-airport/", s.AirportSearchHandler.HandleAirportSearch).Methods("GET")
+	apiRouter.HandleFunc("/get-destinations/", s.Handlers["flightInspiration"].Handle).Methods("GET")
+	apiRouter.HandleFunc("/get-flight-offers/", s.Handlers["flightOffers"].Handle).Methods("GET")
+	apiRouter.HandleFunc("/get-airport/", s.Handlers["airportSearch"].Handle).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {

@@ -17,7 +17,10 @@ func NewFISHandler(cm controller.ControllerManager) *FISHandler {
 	return &FISHandler{ControllerManager: cm}
 }
 
-func (h *FISHandler) HandleFlightInspirationSearch(w http.ResponseWriter, r *http.Request) {
+// Ensure FISHandler implements the RequestHandler interface.
+var _ RequestHandler = (*FISHandler)(nil)
+
+func (h *FISHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	origin := r.URL.Query().Get("origin")
 
 	if origin == "" {

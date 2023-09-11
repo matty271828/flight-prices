@@ -17,7 +17,10 @@ func NewFOSHandler(cm controller.ControllerManager) *FOSHandler {
 	return &FOSHandler{ControllerManager: cm}
 }
 
-func (h *FOSHandler) HandleFlightOffersSearch(w http.ResponseWriter, r *http.Request) {
+// Ensure FOSHandler implements the RequestHandler interface.
+var _ RequestHandler = (*FOSHandler)(nil)
+
+func (h *FOSHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	requiredParams := []string{"origin", "destination", "departureDate", "adults"}
 	params := make(map[string]string)
 
