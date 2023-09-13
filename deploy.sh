@@ -79,6 +79,7 @@ update_env_var "AMADEUS_API_TEST_KEY" "$AMADEUS_API_TEST_KEY"
 update_env_var "AMADEUS_API_TEST_SECRET" "$AMADEUS_API_TEST_SECRET"
 update_env_var "AMADEUS_API_PROD_KEY" "$AMADEUS_API_PROD_KEY"
 update_env_var "AMADEUS_API_PROD_SECRET" "$AMADEUS_API_PROD_SECRET"
+update_env_var "OPEN_API_KEY" "$OPEN_API_KEY"
 
 # Update feature flags
 update_env_var "USE_PROD_API" "$USE_PROD_API"
