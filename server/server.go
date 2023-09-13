@@ -15,6 +15,7 @@ import (
 	"github.com/matty271828/flight-prices/amadeus"
 	"github.com/matty271828/flight-prices/amadeus/handlers"
 	"github.com/matty271828/flight-prices/controller"
+	internal "github.com/matty271828/flight-prices/internalendpoints"
 )
 
 type Server struct {
@@ -74,6 +75,10 @@ func (s *Server) SetupRoutes() {
 	apiRouter.HandleFunc("/get-destinations/", s.Handlers["flightInspiration"].Handle).Methods("GET")
 	apiRouter.HandleFunc("/get-flight-offers/", s.Handlers["flightOffers"].Handle).Methods("GET")
 	apiRouter.HandleFunc("/get-airport/", s.Handlers["airportSearch"].Handle).Methods("GET")
+
+	// Adding the internal endpoint
+	internalRouter := s.Router.PathPrefix("/internal").Subrouter()
+	internalRouter.HandleFunc("/trigger-search", internal.TriggerSimulatedAnnealing).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
