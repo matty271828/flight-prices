@@ -37,7 +37,6 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 			"flightOffers":       handlers.NewFOSHandler(c),
 			"simulatedAnnealing": internal.NewSAHandler(c),
 		},
-		// TODO: Need internal handler map
 		Router:     mux.NewRouter(),
 		UIBasepath: basepath,
 		UIType:     uiType,
