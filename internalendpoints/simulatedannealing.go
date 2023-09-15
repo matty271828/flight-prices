@@ -33,7 +33,7 @@ func (h *SAHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Modify the Run method of SimulatedAnnealing to accept the origin, destination, and departureDate
-	result, _ := sa.Run(origin, destination, dateStr)
+	result := sa.Run(origin, destination, dateStr)
 
 	// Outputting to the console
 	fmt.Printf("Optimal flight date: %v with price: %v\n", result.Date, result.Price)
