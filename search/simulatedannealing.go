@@ -1,7 +1,9 @@
 package search
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/matty271828/flight-prices/controller"
@@ -26,11 +28,33 @@ func NewSimulatedAnnealing(cm controller.ControllerManager, params *Parameters) 
 	}
 }
 
-func (sa *SimulatedAnnealing) Run(origin, destination string, departureDate time.Time) Result {
+func (sa *SimulatedAnnealing) Run(origin, destination, departureDate string) (Result, error) {
 	fmt.Println("Running simulated annealing...")
-	// Return a mock result
+
+	price, _ := sa.getFlightPrice(origin, destination, departureDate)
+
 	return Result{
 		Date:  time.Now(),
-		Price: 100.50,
+		Price: price,
+	}, nil
+}
+
+func (sa *SimulatedAnnealing) getFlightPrice(origin, destination, date string) (float64, error) {
+	parsedOffers, err := sa.ControllerManager.FlightOffersSearch(origin, destination, "1", date)
+	if err != nil {
+		return 0, err
 	}
+
+	// Ensure there are offers in the response
+	if len(parsedOffers.Data) == 0 {
+		return 0, errors.New("no flight offers available")
+	}
+
+	// Convert GrandTotal (which is of string type) to float64
+	price, err := strconv.ParseFloat(parsedOffers.Data[0].Price.GrandTotal, 64)
+	if err != nil {
+		return 0, fmt.Errorf("error parsing flight price: %v", err)
+	}
+
+	return price, nil
 }

@@ -1,5 +1,12 @@
 package flightinspiration
 
+// FlightInspirationResponse represents the response structure for FlightInspirationSearch
+type FISResponse struct {
+	Data         []fisDestination `json:"data"`
+	Dictionaries Dictionaries     `json:"dictionaries"`
+	Meta         Meta             `json:"meta"`
+}
+
 // FlightDestination represents the flight destination details
 type fisDestination struct {
 	Type          string   `json:"type"`

@@ -1,5 +1,10 @@
 package airportsearch
 
+type AirportSearchResponse struct {
+	Meta Meta       `json:"meta"`
+	Data []Location `json:"data"`
+}
+
 type Meta struct {
 	Count int   `json:"count"`
 	Links Links `json:"links"`

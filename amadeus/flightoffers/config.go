@@ -1,5 +1,11 @@
 package flightoffers
 
+type FOSResponse struct {
+	Meta         Meta          `json:"meta"`
+	Data         []FlightOffer `json:"data"`
+	Dictionaries Dictionaries  `json:"dictionaries"`
+}
+
 type Meta struct {
 	Count int   `json:"count"`
 	Links Links `json:"links"`

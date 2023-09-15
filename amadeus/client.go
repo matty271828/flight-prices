@@ -1,7 +1,9 @@
 package amadeus
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -53,11 +55,24 @@ func (a *AmadeusClient) FlightInspirationSearch(origin string) (*flightinspirati
 	}
 	defer resp.Body.Close()
 
+	// Check the status code of the response
 	if resp.StatusCode != http.StatusOK && checkStatusCode(resp) != nil {
 		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
 	}
 
-	return flightinspiration.ParseFISResponse(resp)
+	// Inline the parsing logic here
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var response flightinspiration.FISResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling flight offers search response: %v", err)
+	}
+
+	return &response, nil
 }
 
 func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, adults string) (*flightoffers.FOSResponse, error) {
@@ -91,7 +106,19 @@ func (a *AmadeusClient) FlightOffersSearch(origin, destination, departureDate, a
 		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
 	}
 
-	return flightoffers.ParseFOSResponse(resp)
+	// Inline the parsing logic here
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var response flightoffers.FOSResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling flight offers search response: %v", err)
+	}
+
+	return &response, nil
 }
 
 // AirportSearch finds airports and cities that match a specific word or string of letters.
@@ -115,8 +142,22 @@ func (a *AmadeusClient) AirportSearch(keyword string) (*airportsearch.AirportSea
 	}
 	defer resp.Body.Close()
 
+	// Check the status code of the response
 	if resp.StatusCode != http.StatusOK && checkStatusCode(resp) != nil {
 		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, checkStatusCode(resp))
 	}
-	return airportsearch.ParseAirportSearchResponse(resp)
+
+	// Inline the parsing logic here
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var response airportsearch.AirportSearchResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling airport search response: %v", err)
+	}
+
+	return &response, nil
 }
