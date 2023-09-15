@@ -41,8 +41,8 @@ func (sa *SimulatedAnnealing) Run(origin, destination, departureDate string) Res
 	}
 }
 
-func (sa *SimulatedAnnealing) getFlightPrice(origin, destination, date string) (float64, error) {
-	parsedOffers, err := sa.ControllerManager.FlightOffersSearch(origin, destination, "1", date)
+func (sa *SimulatedAnnealing) getFlightPrice(origin, destination, departureDate string) (float64, error) {
+	parsedOffers, err := sa.ControllerManager.FlightOffersSearch(origin, destination, departureDate, "2")
 	if err != nil {
 		return 0, fmt.Errorf("error conducting flight offers search%v \n", err)
 	}
