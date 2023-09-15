@@ -30,18 +30,26 @@ func NewSimulatedAnnealing(cm controller.ControllerManager, params *Parameters) 
 func (sa *SimulatedAnnealing) Run(origin, destination, departureDate string) Result {
 	fmt.Println("Running simulated annealing...")
 
-	price, err := sa.getFlightPrice(origin, destination, departureDate)
+	price, err := sa.getFlight(origin, destination, departureDate)
 	if err != nil {
 		fmt.Printf("error getting flight price: %s", err)
+		return Result{}
+	}
+
+	layout := "2006-01-02"
+	departureDateTime, err := time.Parse(layout, departureDate)
+	if err != nil {
+		fmt.Printf("could not parse departureDate: %v", err)
+		return Result{}
 	}
 
 	return Result{
-		Date:  time.Now(),
+		Date:  departureDateTime,
 		Price: price,
 	}
 }
 
-func (sa *SimulatedAnnealing) getFlightPrice(origin, destination, departureDate string) (float64, error) {
+func (sa *SimulatedAnnealing) getFlight(origin, destination, departureDate string) (float64, error) {
 	parsedOffers, err := sa.ControllerManager.FlightOffersSearch(origin, destination, departureDate, "2")
 	if err != nil {
 		return 0, fmt.Errorf("error conducting flight offers search%v \n", err)
