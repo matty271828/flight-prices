@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/matty271828/flight-prices/controller"
 	"github.com/matty271828/flight-prices/search"
@@ -32,8 +33,9 @@ func (h *SAHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		CoolingRate:        0.95,
 	})
 
-	// Modify the Run method of SimulatedAnnealing to accept the origin, destination, and departureDate
-	result := sa.Run(origin, destination, dateStr)
+	// specifiy period to search over
+	period := 1 * 30 * time.Hour * 24
+	result := sa.Run(origin, destination, dateStr, period)
 
 	// Outputting to the console
 	fmt.Printf("Optimal flight date: %v with price: %v\n", result.Date, result.Price)

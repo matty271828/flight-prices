@@ -2,6 +2,9 @@ package search
 
 import (
 	"fmt"
+	"log"
+	"math"
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -27,25 +30,68 @@ func NewSimulatedAnnealing(cm controller.ControllerManager, params *Parameters) 
 	}
 }
 
-func (sa *SimulatedAnnealing) Run(origin, destination, departureDate string) Result {
+func (sa *SimulatedAnnealing) Run(origin, destination, startDate string, duration time.Duration) Result {
 	fmt.Println("Running simulated annealing...")
 
-	price, err := sa.getFlight(origin, destination, departureDate)
+	// Convert startDate to time.Time to calculate endDate
+	layout := "2006-01-02"
+	parsedStartDate, err := time.Parse(layout, startDate)
 	if err != nil {
-		fmt.Printf("error getting flight price: %s", err)
+		fmt.Printf("could not parse startDate: %v", err)
 		return Result{}
 	}
 
-	layout := "2006-01-02"
-	departureDateTime, err := time.Parse(layout, departureDate)
+	// Calculate endDate using the provided duration
+	endDate := parsedStartDate.Add(duration)
+
+	// Step 1: Start with an initial solution
+	currentDate := randomDateInRange(parsedStartDate, endDate)
+	bestDate := currentDate
+
+	currentPrice, err := sa.getFlight(origin, destination, currentDate.Format("2006-01-02"))
 	if err != nil {
-		fmt.Printf("could not parse departureDate: %v", err)
+		fmt.Printf("error getting initial flight price: %s", err)
 		return Result{}
+	}
+	bestPrice := currentPrice
+	log.Printf("Initial flight: Date: %s, Price: %f", currentDate, currentPrice)
+
+	// Initial temperature and cooling rate from the Parameters
+	T := sa.Params.InitialTemperature
+	coolingRate := sa.Params.CoolingRate
+
+	for T > 1 {
+		// Step 3: Perturb the solution
+		newDate := randomDateInRange(parsedStartDate, endDate)
+
+		newPrice, err := sa.getFlight(origin, destination, newDate.Format("2006-01-02"))
+		if err != nil {
+			fmt.Printf("error getting perturbed flight price: %s", err)
+			return Result{}
+		}
+
+		// Step 5: Acceptance criteria
+		if newPrice != 0 && (newPrice < currentPrice || acceptNewSolution(currentPrice-newPrice, T)) {
+			currentDate = newDate
+			currentPrice = newPrice
+
+			if currentPrice < bestPrice {
+				bestPrice = currentPrice
+				bestDate = currentDate
+			}
+		}
+		log.Printf("Flight checked: Date: %s, Price: %f", currentDate, currentPrice)
+
+		// Sleep for 2 seconds between each API call
+		time.Sleep(time.Second * 2)
+
+		// Step 6: Decrease the temperature
+		T *= coolingRate
 	}
 
 	return Result{
-		Date:  departureDateTime,
-		Price: price,
+		Date:  bestDate,
+		Price: bestPrice,
 	}
 }
 
@@ -67,4 +113,19 @@ func (sa *SimulatedAnnealing) getFlight(origin, destination, departureDate strin
 	}
 
 	return price, nil
+}
+
+// randomDateInRange returns a random date between start and end.
+func randomDateInRange(start, end time.Time) time.Time {
+	duration := end.Sub(start)
+	randomDuration := time.Duration(rand.Int63n(int64(duration)))
+	return start.Add(randomDuration)
+}
+
+// acceptNewSolution determines whether to accept a new solution based on the simulated annealing probability.
+func acceptNewSolution(deltaCost float64, temperature float64) bool {
+	if deltaCost < 0 {
+		return true
+	}
+	return rand.Float64() < math.Exp(-deltaCost/temperature)
 }
