@@ -33,59 +33,41 @@ func NewSimulatedAnnealing(cm controller.ControllerManager, params *Parameters) 
 func (sa *SimulatedAnnealing) Run(origin, destination, startDate string, duration time.Duration) Result {
 	fmt.Println("Running simulated annealing...")
 
-	// Convert startDate to time.Time to calculate endDate
-	layout := "2006-01-02"
-	parsedStartDate, err := time.Parse(layout, startDate)
+	parsedStartDate, endDate, err := sa.parseAndComputeDates(startDate, duration)
 	if err != nil {
 		fmt.Printf("could not parse startDate: %v", err)
 		return Result{}
 	}
 
-	// Calculate endDate using the provided duration
-	endDate := parsedStartDate.Add(duration)
-
-	// Step 1: Start with an initial solution
-	currentDate := randomDateInRange(parsedStartDate, endDate)
-	bestDate := currentDate
-
-	currentPrice, err := sa.getFlight(origin, destination, currentDate.Format("2006-01-02"))
+	currentDate, currentPrice, err := sa.initializeSolution(origin, destination, parsedStartDate, endDate)
 	if err != nil {
 		fmt.Printf("error getting initial flight price: %s", err)
 		return Result{}
 	}
-	bestPrice := currentPrice
-	log.Printf("Initial flight: Date: %s, Price: %f", currentDate, currentPrice)
 
-	// Initial temperature and cooling rate from the Parameters
+	bestDate, bestPrice := currentDate, currentPrice
+
 	T := sa.Params.InitialTemperature
 	coolingRate := sa.Params.CoolingRate
 
-	for T > 1 {
-		// Step 3: Perturb the solution
-		newDate := randomDateInRange(parsedStartDate, endDate)
+	maxIterations := 10
+	iterationCount := 0
+	totalAPICost := 0.0
+	apiCallCost := 0.025
+	for T > 1 && iterationCount < maxIterations {
+		currentDate, currentPrice = sa.anneal(origin, destination, parsedStartDate, endDate, currentPrice, currentDate, T)
 
-		newPrice, err := sa.getFlight(origin, destination, newDate.Format("2006-01-02"))
-		if err != nil {
-			fmt.Printf("error getting perturbed flight price: %s", err)
-			return Result{}
+		if currentPrice < bestPrice {
+			bestPrice = currentPrice
+			bestDate = currentDate
 		}
 
-		// Step 5: Acceptance criteria
-		if newPrice != 0 && (newPrice < currentPrice || acceptNewSolution(currentPrice-newPrice, T)) {
-			currentDate = newDate
-			currentPrice = newPrice
-
-			if currentPrice < bestPrice {
-				bestPrice = currentPrice
-				bestDate = currentDate
-			}
-		}
+		iterationCount++
+		totalAPICost = float64(iterationCount) * apiCallCost
 		log.Printf("Flight checked: Date: %s, Price: %f", currentDate, currentPrice)
+		fmt.Printf("Iteration: %d, Total API Cost: €%.2f\n", iterationCount, totalAPICost)
 
-		// Sleep for 2 seconds between each API call
 		time.Sleep(time.Second * 2)
-
-		// Step 6: Decrease the temperature
 		T *= coolingRate
 	}
 
@@ -128,4 +110,46 @@ func acceptNewSolution(deltaCost float64, temperature float64) bool {
 		return true
 	}
 	return rand.Float64() < math.Exp(-deltaCost/temperature)
+}
+
+// Helper function to parse date and calculate end date
+func (sa *SimulatedAnnealing) parseAndComputeDates(startDate string, duration time.Duration) (time.Time, time.Time, error) {
+	layout := "2006-01-02"
+	parsedStartDate, err := time.Parse(layout, startDate)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	endDate := parsedStartDate.Add(duration)
+	return parsedStartDate, endDate, nil
+}
+
+// Helper function to initialize the solution
+func (sa *SimulatedAnnealing) initializeSolution(origin, destination string, startDate, endDate time.Time) (time.Time, float64, error) {
+	currentDate := randomDateInRange(startDate, endDate)
+	currentPrice, err := sa.getFlight(origin, destination, currentDate.Format("2006-01-02"))
+	if err != nil {
+		return currentDate, 0, err
+	}
+	return currentDate, currentPrice, nil
+}
+
+// Helper function for the annealing process
+func (sa *SimulatedAnnealing) anneal(
+	origin string,
+	destination string,
+	startDate, endDate time.Time,
+	currentPrice float64,
+	currentDate time.Time,
+	temperature float64,
+) (time.Time, float64) {
+	newDate := randomDateInRange(startDate, endDate)
+	newPrice, err := sa.getFlight(origin, destination, newDate.Format("2006-01-02"))
+	if err != nil {
+		return currentDate, currentPrice
+	}
+
+	if newPrice != 0 && (newPrice < currentPrice || acceptNewSolution(currentPrice-newPrice, temperature)) {
+		return newDate, newPrice
+	}
+	return currentDate, currentPrice
 }
