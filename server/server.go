@@ -36,6 +36,7 @@ func NewServer(c controller.ControllerManager, basepath, uiType, route, port str
 			"flightInspiration":  handlers.NewFISHandler(c),
 			"flightOffers":       handlers.NewFOSHandler(c),
 			"simulatedAnnealing": internal.NewSAHandler(c),
+			"structuredSearch":   internal.NewSSHandler(c),
 		},
 		Router:     mux.NewRouter(),
 		UIBasepath: basepath,
@@ -79,7 +80,8 @@ func (s *Server) SetupRoutes() {
 
 	// Adding the internal endpoint
 	internalRouter := s.Router.PathPrefix("/internal").Subrouter()
-	internalRouter.HandleFunc("/trigger-search", s.Handlers["simulatedAnnealing"].Handle).Methods("GET")
+	internalRouter.HandleFunc("/simulated-annealing", s.Handlers["simulatedAnnealing"].Handle).Methods("GET")
+	internalRouter.HandleFunc("/structured-search", s.Handlers["structuredSearch"].Handle).Methods("GET")
 }
 
 func (s *Server) Start(basepath, uiType, route, port string) error {
