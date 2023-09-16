@@ -54,6 +54,7 @@ func (sa *SimulatedAnnealing) Run(origin, destination, startDate string, duratio
 	iterationCount := 0
 	totalAPICost := 0.0
 	apiCallCost := 0.025
+
 	for T > 1 && iterationCount < maxIterations {
 		currentDate, currentPrice = sa.anneal(origin, destination, parsedStartDate, endDate, currentPrice, currentDate, T)
 

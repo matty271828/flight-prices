@@ -38,8 +38,8 @@ func (h *SAHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	result := sa.Run(origin, destination, dateStr, period)
 
 	// Outputting to the console
-	fmt.Printf("Optimal flight date: %v with price: %v\n", result.Date, result.Price)
+	fmt.Printf("%s to %s : Cheapest flight found : %v with price: %v\n", origin, destination, result.Date, result.Price)
 
 	// Sending a response to the caller
-	w.Write([]byte(fmt.Sprintf("Search complete. Optimal flight date: %s with price: €%.2f\n", result.Date.Format("2006-01-02"), result.Price)))
+	w.Write([]byte(fmt.Sprintf("Simulated annealing search complete. Optimal flight date: %s with price: €%.2f\n", result.Date.Format("2006-01-02"), result.Price)))
 }
