@@ -50,7 +50,7 @@ func (sa *SimulatedAnnealing) Run(origin, destination, startDate string, duratio
 	T := sa.Params.InitialTemperature
 	coolingRate := sa.Params.CoolingRate
 
-	maxIterations := 10
+	maxIterations := 5
 	iterationCount := 0
 	totalAPICost := 0.0
 	apiCallCost := 0.025

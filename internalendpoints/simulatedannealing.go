@@ -34,7 +34,8 @@ func (h *SAHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// specifiy period to search over
-	period := 1 * 30 * time.Hour * 24
+	// TODO: Make this part of the endpoint
+	period := 10 * time.Hour * 24
 	result := sa.Run(origin, destination, dateStr, period)
 
 	// Outputting to the console
